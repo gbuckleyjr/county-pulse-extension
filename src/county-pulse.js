@@ -66,6 +66,7 @@
   let resizeFrame = 0;
   let lastNativeTooltipTupleId = null;
   let lastNativeTooltipAt = 0;
+  let nativeTooltipUnavailable = false;
   let worksheet = null;
 
   const formatNumber = new Intl.NumberFormat('en-US', {
@@ -441,7 +442,11 @@
       encodedRows = rows
         .map((cells, index) => {
           const markInfo = marksInfo[index];
-          const tupleId = markInfo ? Number(markInfo.tupleId) : null;
+          const markTupleId = markInfo ? Number(markInfo.tupleId) : null;
+          const computedTupleId = rows.length - index;
+          const tupleId = Number.isFinite(markTupleId) && markTupleId > 0
+            ? markTupleId
+            : computedTupleId;
           const fips = normalizeFips(cellNative(cells, fipsIndex));
           const value = parseNumber(cellNative(cells, valueIndex));
           const explicitSize = sizeIndex >= 0 ? parseNumber(cellNative(cells, sizeIndex)) : null;
@@ -698,7 +703,7 @@
   }
 
   function showTooltip(row, event) {
-    if (tableauAvailable() && worksheet && worksheet.hoverTupleAsync) {
+    if (!nativeTooltipUnavailable && tableauAvailable() && worksheet && worksheet.hoverTupleAsync) {
       tooltip.hidden = true;
       showNativeTooltip(row, event);
       return;
@@ -745,13 +750,15 @@
       row.tupleId,
       {
         tooltipAnchorPoint: {
-          x: event.clientX,
-          y: event.clientY
+          x: event.pageX,
+          y: event.pageY
         }
       },
       true
     ).catch((error) => {
       console.warn('Tableau tooltip failed', error);
+      nativeTooltipUnavailable = true;
+      showTooltip(row, event);
     });
   }
 
