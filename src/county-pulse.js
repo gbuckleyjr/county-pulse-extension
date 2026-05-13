@@ -224,6 +224,48 @@
     return columns.find((column) => columnMatchesField(column, field)) || null;
   }
 
+  function findColumnByName(columns, patterns) {
+    return columns.find((column) => {
+      const candidates = [
+        column.fieldName,
+        column.caption,
+        column.alias,
+        column.name
+      ].filter(Boolean);
+      return candidates.some((candidate) => {
+        const normalized = normalizeKey(candidate);
+        return patterns.some((pattern) => pattern.test(normalized));
+      });
+    }) || null;
+  }
+
+  function resolveColumn(columns, fields, patterns) {
+    for (const field of fields) {
+      const column = findColumn(columns, field);
+      if (column) return column;
+    }
+    return findColumnByName(columns, patterns);
+  }
+
+  function fieldNames(fields) {
+    return fields.map((field) => normalizeFieldName(field)).filter(Boolean);
+  }
+
+  function diagnosticText(fields, columns) {
+    const mapped = [
+      `FIPS: ${fieldNames(fields.fips).join(', ') || 'none'}`,
+      `Value: ${fieldNames(fields.value).join(', ') || 'none'}`,
+      `Size: ${fieldNames(fields.size).join(', ') || 'none'}`,
+      `Label: ${fieldNames(fields.label).join(', ') || 'none'}`
+    ].join(' | ');
+    const columnNames = columns
+      .map((column) => columnLabel(column))
+      .filter(Boolean)
+      .slice(0, 8)
+      .join(', ');
+    return `${mapped}. Worksheet columns seen: ${columnNames || 'none'}.`;
+  }
+
   function columnLabel(column) {
     if (!column) return '';
     return column.caption || column.fieldName || column.name || column.alias || '';
@@ -264,28 +306,39 @@
     try {
       const fields = await getFieldsFromEncodings(worksheet);
       if (token !== renderToken) return;
-
-      if (!fields.fips.length || !fields.value.length) {
-        encodedRows = [];
-        pulseRows = [];
-        dataByFips.clear();
-        baseDirty = true;
-        showEmpty(true, {
-          title: 'Map fields on the Marks card.',
-          body: 'County FIPS and Signed Value are required. Pulse Size and Label are optional.'
-        });
-        setStatus('Waiting for fields');
-        return;
-      }
-
       const table = await readSummaryData(worksheet);
       if (token !== renderToken) return;
       const rows = table.data || [];
       const columns = table.columns || [];
-      const fipsColumn = findColumn(columns, fields.fips[0]);
-      const valueColumn = findColumn(columns, fields.value[0]);
-      const sizeColumn = findColumn(columns, fields.size[0]);
-      const labelColumn = findColumn(columns, fields.label[0]);
+      const fipsColumn = resolveColumn(columns, fields.fips, [
+        /^countyfips$/,
+        /^countyfipsstring$/,
+        /^fips$/,
+        /^fipsstr2020$/,
+        /^statecountyareafipscode/
+      ]);
+      const valueColumn = resolveColumn(columns, fields.value, [
+        /^signedvalue$/,
+        /^totalnetmigrants$/,
+        /^netmigrants$/,
+        /^totalnetmigration$/,
+        /^value$/
+      ]);
+      const sizeColumn = resolveColumn(columns, fields.size, [
+        /^pulsesize$/,
+        /^absolutenetmigrants$/,
+        /^absnetmigrants$/,
+        /^absolutenetmigration$/,
+        /^magnitude$/,
+        /^size$/
+      ]);
+      const labelColumn = resolveColumn(columns, fields.label, [
+        /^label$/,
+        /^county$/,
+        /^countyname$/,
+        /^coname2020$/,
+        /^countyareaname/
+      ]);
       const detailColumns = [...fields.detail, ...fields.tooltip]
         .map((field) => findColumn(columns, field))
         .filter(Boolean);
@@ -296,10 +349,10 @@
         dataByFips.clear();
         baseDirty = true;
         showEmpty(true, {
-          title: 'Fields did not match the worksheet data.',
-          body: 'Try removing and re-adding County FIPS or Signed Value on the Marks card.'
+          title: 'Map fields on the Marks card.',
+          body: `County FIPS and Signed Value are required. ${diagnosticText(fields, columns)}`
         });
-        setStatus('Field mismatch');
+        setStatus('Waiting for fields');
         return;
       }
 
