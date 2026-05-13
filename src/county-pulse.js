@@ -405,7 +405,6 @@
       const rows = table.data || [];
       const columns = table.columns || [];
       const marksInfo = table.marksInfo || [];
-      const tupleRowCount = Number(table.totalRowCount) || rows.length;
       const fipsColumn = resolveColumn(columns, fields.fips, [
         /^countyfips$/,
         /^countyfipsstring$/,
@@ -467,7 +466,7 @@
           const markTupleId = markInfo ? Number(markInfo.tupleId) : null;
           const tupleId = Number.isFinite(markTupleId) && markTupleId > 0
             ? markTupleId
-            : tupleRowCount - index;
+            : index + 1;
           const fips = normalizeFips(cellNative(cells, fipsIndex));
           const value = parseNumber(cellNative(cells, valueIndex));
           const explicitSize = sizeIndex >= 0 ? parseNumber(cellNative(cells, sizeIndex)) : null;
