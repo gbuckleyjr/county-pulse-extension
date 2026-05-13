@@ -32,6 +32,12 @@ AGENTS.md
 
 # Generated screenshots and exports
 migration-pulse-extension/*trimmed-screenshot*.png
+migration-pulse-extension/
+Dashboard Extension Plan.txt
+Data Source Summary.txt
+US County PopMigration.csv
+*.csv
 *.twb
 *.hyper
 *.twbx
+*.png

@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>County Pulse</title>
+  <link rel="stylesheet" href="src/county-pulse.css" />
+  <script src="assets/tableau.extensions.1.latest.js"></script>
+  <script src="assets/d3.v7.min.js"></script>
+  <script src="assets/topojson-client.min.js"></script>
+</head>
+<body>
+  <main class="app-shell">
+    <header class="control-bar" aria-label="County Pulse controls">
+      <div class="mode-switch" role="group" aria-label="Animation mode">
+        <button class="mode-button is-active" type="button" data-mode="pulse" aria-pressed="true">Pulse</button>
+        <button class="mode-button" type="button" data-mode="build" aria-pressed="false">Rank Build</button>
+        <button class="mode-button" type="button" data-mode="scanner" aria-pressed="false">Scanner</button>
+      </div>
+      <div class="control-cluster">
+        <span id="source-status" class="status-pill">Loading</span>
+        <label class="speed-control" for="speed-range">
+          Speed
+          <input id="speed-range" type="range" min="35" max="180" value="90" />
+        </label>
+        <button id="play-toggle" type="button">Pause</button>
+      </div>
+    </header>
+
+    <section class="map-stage" aria-label="Animated U.S. county pulse map">
+      <canvas id="map-canvas"></canvas>
+      <div class="legend" aria-label="Legend">
+        <div><span class="swatch positive"></span>Positive</div>
+        <div><span class="swatch negative"></span>Negative</div>
+        <div><span class="swatch missing"></span>No mark</div>
+      </div>
+      <div id="empty-state" class="empty-state" hidden>
+        <strong>Map fields on the Marks card.</strong>
+        <span>County FIPS and Signed Value are required. Pulse Size and Label are optional.</span>
+      </div>
+      <div id="tooltip" class="tooltip" hidden></div>
+    </section>
+  </main>
+
+  <script src="src/county-pulse.js"></script>
+</body>
+</html>

@@ -1,0 +1,16 @@
+Suggested Tableau Dashboard Text
+
+Generic title
+County Pulse
+
+Generic subtitle
+Animated U.S. county map driven by Tableau Marks card encodings.
+
+Migration example title
+Migration Pulse
+
+Migration example subtitle
+2010-2020 county net migration
+
+Migration example caption
+Net migration = in-migrants minus out-migrants. Pulses show magnitude and direction, not origin-destination flow.
