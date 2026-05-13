@@ -1,0 +1,34 @@
+# Credentials and local secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+*token*
+*Token*
+*secret*
+*Secret*
+*PAT*
+*pat*
+Github PAT.txt
+
+# Local runtime and dependency noise
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+*.log
+
+# OS/editor files
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+
+# Generated screenshots and exports
+migration-pulse-extension/*trimmed-screenshot*.png
+*.hyper
+*.twbx

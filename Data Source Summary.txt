@@ -1,0 +1,72 @@
+Data Source Summary
+Research date: 2026-05-12
+
+Makeover Monday dataset link
+- https://data.world/makeovermonday/2026w19-us-population-migration
+- The data.world page is the Makeover Monday host page for 2026 Week 19. In this environment, the page loads as a JavaScript shell and the public API requires authorization, so source details below come from the linked UW-Madison source site and the local CSV.
+
+Source
+- Title: Net Migration Patterns for US Counties
+- Source URL: https://netmigration.wisc.edu/
+- Producer: Applied Population Laboratory at the University of Wisconsin-Madison, with work also conducted at Michigan Technological University and the Carsey Institute at the University of New Hampshire.
+- Suggested citation: Egan-Robertson, David, Katherine J. Curtis, Richelle L. Winkler, Kenneth M. Johnson, and Caitlin Bourbeau, Age-Specific Net Migration Estimates for US Counties, 1950-2020. Applied Population Laboratory, University of Wisconsin-Madison, 2024. Web. https://netmigration.wisc.edu/.
+
+What the source measures
+- Net migration is in-migrants minus out-migrants.
+- The data does not show flows from one county to another. It shows only the net balance after moves in and moves out.
+- Source coverage spans U.S. counties and states by decade from 1950 to 2020.
+- Breakouts on the source site include five-year age groups, sex, race categories, and Hispanic origin where available.
+- The local Makeover Monday extract is focused on 2010s net migration and 2020 population totals by sex.
+
+How estimates are built
+- Source uses a residual method.
+- Census counts at the beginning and end of each decade are adjusted.
+- The starting population is aged forward, deaths are subtracted, births are added, and the resulting expected population is compared with observed population at decade end.
+- Observed end population minus expected end population becomes estimated net migrants.
+- For 2010-2020, the source uses a Census Bureau blended base for the final 2020 population.
+
+Local file
+- File: 2026.05.11\US County PopMigration.csv
+- Rows: 3,190
+- State-total rows: 51
+- County rows excluding state totals: 3,139
+- Columns: State, State FIPS, County FIPS, County, Female Population 2020, Male Population 2020, Net Female Migrants, Net Male Migrants
+
+Column meaning
+- State: state name.
+- State FIPS: two-digit state FIPS code.
+- County FIPS: state-county FIPS code for county or state-total row.
+- County: county name; "State Total" rows summarize each state.
+- Female Population 2020: female total population in 2020.
+- Male Population 2020: male total population in 2020.
+- Net Female Migrants: estimated net female migrants during the 2010s.
+- Net Male Migrants: estimated net male migrants during the 2010s.
+
+Useful calculated fields
+- Total Population 2020 = Female Population 2020 + Male Population 2020.
+- Total Net Migrants = Net Female Migrants + Net Male Migrants.
+- Net Migration Rate = Total Net Migrants / Total Population 2020.
+- Net Migration Rate per 100 = Net Migration Rate * 100.
+- Female Share of Net Migration = Net Female Migrants / Total Net Migrants. Use carefully when Total Net Migrants is near zero or negative.
+- Gender Net Migration Gap = Net Female Migrants - Net Male Migrants.
+- Migration Direction = Gain if Total Net Migrants > 0, Loss if < 0, Flat if near 0.
+
+Initial local data scan
+- Largest county net gains by total net migrants: Maricopa County, Arizona; King County, Washington; Collin County, Texas; Clark County, Nevada; Orange County, Florida.
+- Largest county net losses by total net migrants: Los Angeles County, California; Cook County, Illinois; Wayne County, Michigan; Milwaukee County, Wisconsin; Baltimore city, Maryland.
+- Use rates, not only raw counts, when comparing small counties to large counties.
+
+Important caveats
+- Net migration is not origin-destination flow. Do not draw animated movement paths between counties unless another dataset supplies flows.
+- Net migrant counts are decade estimates, not annual values. Any animation should be labeled as a decade accumulation or magnitude animation, not a true year-by-year replay.
+- Children under age 10 and oldest ages have more uncertainty in source estimates because birth and death records can affect residual estimates.
+- Race/ethnicity estimates are less reliable than total estimates because categories differ across birth records, death records, Census data, and Population Estimates Program data.
+- The source suppresses AIAN under-age-10 estimates and any cells with expected population under 10. The local Makeover Monday extract does not expose those suppressed detailed cells.
+- Population values may be estimates and can include decimals; do not assume all values are raw integer headcounts.
+
+Source links
+- Makeover Monday data host: https://data.world/makeovermonday/2026w19-us-population-migration
+- UW-Madison source site: https://netmigration.wisc.edu/
+- Data details and methods: https://netmigration.wisc.edu/data-details
+- Data usage stats: https://netmigration.wisc.edu/data-use
+- 2010s data dictionary: https://netmigration.wisc.edu/documents/NME_1020_datadict.csv

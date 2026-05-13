@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest manifest-version="0.1" xmlns="http://www.tableau.com/xml/extension_manifest">
+  <dashboard-extension id="com.eigenx.countypulse" extension-version="0.1.0">
+    <default-locale>en_US</default-locale>
+    <name>County Pulse</name>
+    <description>Animated county pulse map for signed county-level Tableau metrics.</description>
+    <author name="gbuckleyjr" email="gbuckleyjr@users.noreply.github.com" organization="" website="https://github.com/gbuckleyjr" />
+    <min-api-version>1.10</min-api-version>
+    <source-location>
+      <url>https://gbuckleyjr.github.io/county-pulse-extension/migration-pulse-extension/index.html</url>
+    </source-location>
+    <icon>iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO7+3xUAAAAASUVORK5CYII=</icon>
+    <context-menu>
+      <configure-context-menu-item />
+    </context-menu>
+  </dashboard-extension>
+</manifest>
