@@ -42,3 +42,4 @@ US County PopMigration.csv
 *.hyper
 *.twbx
 *.png
+!assets/icon.png
