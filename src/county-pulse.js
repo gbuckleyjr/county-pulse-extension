@@ -623,12 +623,15 @@
       return;
     }
 
+    const pulsePhase = (Math.sin(clock * Math.PI * 2) + 1) / 2;
+    const radiusScale = 0.88 + pulsePhase * 0.12;
+
     for (let index = 0; index < pulseRows.length; index += 1) {
       const row = pulseRows[index];
-      const phase = ((clock + index * 0.031) % 1 + 1) % 1;
+      const alphaPhase = ((clock + index * 0.031) % 1 + 1) % 1;
       const maxRadius = 5 + 34 * Math.sqrt(row.magnitude / maxMagnitude);
-      const radius = 2 + maxRadius * phase;
-      const alpha = 0.68 * (1 - phase);
+      const radius = maxRadius * radiusScale;
+      const alpha = 0.2 + 0.48 * (1 - alphaPhase);
       drawCircle(row.x, row.y, radius, row.value >= 0 ? positiveColor : negativeColor, alpha, false);
       drawCircle(row.x, row.y, Math.max(1.8, maxRadius * 0.14), row.value >= 0 ? positiveColor : negativeColor, 0.88, true);
     }
