@@ -405,6 +405,7 @@
       const rows = table.data || [];
       const columns = table.columns || [];
       const marksInfo = table.marksInfo || [];
+      const tupleRowCount = Number(table.totalRowCount) || rows.length;
       const fipsColumn = resolveColumn(columns, fields.fips, [
         /^countyfips$/,
         /^countyfipsstring$/,
@@ -466,7 +467,7 @@
           const markTupleId = markInfo ? Number(markInfo.tupleId) : null;
           const tupleId = Number.isFinite(markTupleId) && markTupleId > 0
             ? markTupleId
-            : null;
+            : tupleRowCount - index;
           const fips = normalizeFips(cellNative(cells, fipsIndex));
           const value = parseNumber(cellNative(cells, valueIndex));
           const explicitSize = sizeIndex >= 0 ? parseNumber(cellNative(cells, sizeIndex)) : null;
@@ -500,7 +501,7 @@
       });
       const sizeName = sizeColumn ? columnLabel(sizeColumn) : `${columnLabel(valueColumn)} (absolute)`;
       const validTooltipCount = encodedRows.filter((row) => Number.isFinite(row.tupleId)).length;
-      const tooltipSource = validTooltipCount ? 'Tableau' : 'Extension';
+      const tooltipSource = validTooltipCount && worksheet.hoverTupleAsync ? 'Tableau' : 'Extension';
       setStatus(`${formatNumber.format(encodedRows.length)} marks | Size: ${sizeName} | Tooltips: ${tooltipSource}`);
     } catch (error) {
       console.error(error);
