@@ -334,6 +334,13 @@
     return findColumnByName(columns, patterns);
   }
 
+  function columnDataIndex(columns, column) {
+    if (!column) return -1;
+    const explicitIndex = Number(column.index);
+    if (Number.isInteger(explicitIndex) && explicitIndex >= 0) return explicitIndex;
+    return columns.indexOf(column);
+  }
+
   function fieldNames(fields) {
     return fields.map((field) => normalizeFieldName(field)).filter(Boolean);
   }
@@ -444,24 +451,22 @@
         return;
       }
 
-      const columnIndex = new Map(columns.map((column, index) => [column.fieldName, index]));
-      const fipsIndex = columnIndex.get(fipsColumn.fieldName);
-      const valueIndex = columnIndex.get(valueColumn.fieldName);
-      const sizeIndex = sizeColumn ? columnIndex.get(sizeColumn.fieldName) : -1;
-      const labelIndex = labelColumn ? columnIndex.get(labelColumn.fieldName) : -1;
+      const fipsIndex = columnDataIndex(columns, fipsColumn);
+      const valueIndex = columnDataIndex(columns, valueColumn);
+      const sizeIndex = columnDataIndex(columns, sizeColumn);
+      const labelIndex = columnDataIndex(columns, labelColumn);
       const detailIndexes = detailColumns.map((column) => ({
         label: columnLabel(column),
-        index: columnIndex.get(column.fieldName)
+        index: columnDataIndex(columns, column)
       }));
 
       encodedRows = rows
         .map((cells, index) => {
           const markInfo = marksInfo[index];
           const markTupleId = markInfo ? Number(markInfo.tupleId) : null;
-          const computedTupleId = rows.length - index;
           const tupleId = Number.isFinite(markTupleId) && markTupleId > 0
             ? markTupleId
-            : computedTupleId;
+            : null;
           const fips = normalizeFips(cellNative(cells, fipsIndex));
           const value = parseNumber(cellNative(cells, valueIndex));
           const explicitSize = sizeIndex >= 0 ? parseNumber(cellNative(cells, sizeIndex)) : null;
@@ -722,7 +727,14 @@
   }
 
   function showTooltip(row, event) {
-    if (!nativeTooltipUnavailable && tableauAvailable() && worksheet && worksheet.hoverTupleAsync) {
+    if (
+      row
+      && Number.isFinite(row.tupleId)
+      && !nativeTooltipUnavailable
+      && tableauAvailable()
+      && worksheet
+      && worksheet.hoverTupleAsync
+    ) {
       tooltip.hidden = true;
       showNativeTooltip(row, event);
       return;
@@ -730,6 +742,7 @@
 
     if (!row) {
       tooltip.hidden = true;
+      clearNativeTooltip();
       return;
     }
 
