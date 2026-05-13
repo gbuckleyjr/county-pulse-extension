@@ -1,0 +1,22 @@
+Plain-English Explanation of the Tableau Viz Extension
+
+County Pulse is a Tableau Viz Extension. That means it behaves like a custom visualization type inside a Tableau worksheet, rather than like a separate object placed on a dashboard.
+
+The user adds it from the Marks card, then maps fields into custom encoding tiles:
+
+- County FIPS tells the extension which county to draw.
+- Signed Value tells it whether the county is positive or negative.
+- Pulse Size optionally controls how large the pulse should be.
+- Label optionally controls the hover label.
+
+This matters because Tableau still does the Tableau work. Data connections, calculations, filters, parameters, and dashboard actions stay in the workbook. The extension receives the summarized worksheet data and uses JavaScript, D3, Canvas, and county geometry to draw a visual layer that Tableau does not provide out of the box.
+
+For the Makeover Monday migration view, the extension uses net migration as the signed value. Positive counties are shown in teal, negative counties are shown in orange, and pulse size represents magnitude. The animation is intentionally abstract: it shows where net totals are large or small, but it does not show exact movement paths between counties.
+
+In short: Tableau handles the data model and interactivity. County Pulse adds a custom animated county-map mark type.
+
+One-sentence version
+County Pulse is a custom Tableau worksheet mark type that turns county FIPS plus a signed metric into an animated U.S. county pulse map.
+
+More technical version
+County Pulse is hosted as a web app and registered through a `.trex` manifest as a Tableau worksheet extension. The manifest defines custom Marks card encodings. At runtime, the extension reads Tableau summary data from the active worksheet, matches rows to U.S. county TopoJSON by FIPS, and renders the map with Canvas for performance.

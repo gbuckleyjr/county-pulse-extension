@@ -1,0 +1,23 @@
+LinkedIn Post Draft
+
+I took this week's Makeover Monday a little further than the usual dashboard build.
+
+For the U.S. county migration dataset, I built a custom Tableau Viz Extension called County Pulse. It works directly from the Tableau Marks card: drop in a county FIPS field, a signed metric, and an optional size metric, and it renders an animated county-level pulse map.
+
+The goal was not to make animation for animation's sake. The dataset is net migration, not origin-destination movement, so I wanted the motion to emphasize magnitude and direction without implying that people moved along specific paths. Teal shows net gains, orange shows net losses, and the pulse modes let you scan the geography a few different ways.
+
+This was also a useful exercise in thinking about where Tableau should stop and custom code should start. Filters, calculations, and field mapping stay in Tableau. The extension just handles a visual form that would be difficult to build cleanly with native marks alone.
+
+Still a prototype, but a fun one.
+
+#MakeoverMonday #Tableau #TableauPublic #DataViz #DataVisualization #TableauVizExtension #VizExtensions #Geospatial #Maps #JavaScript #D3js
+
+Shorter version
+
+For this Makeover Monday, I built more than a dashboard. I made a custom Tableau Viz Extension called County Pulse.
+
+It turns county-level data into an animated pulse map directly from Tableau's Marks card. For the U.S. migration dataset, that means teal for net gains, orange for net losses, and pulse size for magnitude.
+
+The important part: the extension does not replace Tableau. Tableau still owns the data, filters, and calculations. The extension just adds a custom visual layer for a map pattern that native marks do not quite cover.
+
+#MakeoverMonday #Tableau #TableauPublic #DataViz #TableauVizExtension #Geospatial

@@ -6,6 +6,8 @@
   const ctx = canvas.getContext('2d');
   const statusEl = document.getElementById('source-status');
   const modeButtons = Array.from(document.querySelectorAll('[data-mode]'));
+  const rankOrderControl = document.getElementById('rank-order-control');
+  const rankOrderButtons = Array.from(document.querySelectorAll('[data-rank-order]'));
   const speedRange = document.getElementById('speed-range');
   const playToggle = document.getElementById('play-toggle');
   const tooltip = document.getElementById('tooltip');
@@ -20,7 +22,9 @@
   const stateBoundaryColor = 'rgba(45, 54, 56, 0.44)';
   const pulseLimit = 180;
   const modeStorageKey = 'countyPulseMode';
+  const rankOrderStorageKey = 'countyPulseRankOrder';
   const allowedModes = new Set(['pulse', 'build', 'scanner']);
+  const allowedRankOrders = new Set(['desc', 'asc']);
   const customEncodingOrder = {
     fips: 0,
     value: 1,
@@ -51,6 +55,7 @@
   let encodedRows = [];
   let pulseRows = [];
   let currentMode = 'pulse';
+  let currentRankOrder = 'desc';
   let isPlaying = true;
   let animationId = 0;
   let animationClock = 0;
@@ -87,12 +92,26 @@
   function setMode(mode, persist = true) {
     if (!allowedModes.has(mode)) return;
     currentMode = mode;
+    animationClock = 0;
     for (const button of modeButtons) {
       const active = button.dataset.mode === mode;
       button.classList.toggle('is-active', active);
       button.setAttribute('aria-pressed', String(active));
     }
+    rankOrderControl.hidden = mode !== 'build';
     if (persist) persistMode(mode);
+  }
+
+  function setRankOrder(order, persist = true) {
+    if (!allowedRankOrders.has(order)) return;
+    currentRankOrder = order;
+    animationClock = 0;
+    for (const button of rankOrderButtons) {
+      const active = button.dataset.rankOrder === order;
+      button.classList.toggle('is-active', active);
+      button.setAttribute('aria-pressed', String(active));
+    }
+    if (persist) persistRankOrder(order);
   }
 
   async function persistMode(mode) {
@@ -104,11 +123,27 @@
     window.localStorage.setItem(modeStorageKey, mode);
   }
 
+  async function persistRankOrder(order) {
+    if (tableauAvailable() && tableau.extensions.settings && tableau.extensions.worksheetContent) {
+      tableau.extensions.settings.set('rankBuildOrder', order);
+      await tableau.extensions.settings.saveAsync();
+      return;
+    }
+    window.localStorage.setItem(rankOrderStorageKey, order);
+  }
+
   function loadStoredMode() {
     if (tableauAvailable() && tableau.extensions.settings && tableau.extensions.worksheetContent) {
       return tableau.extensions.settings.get('animationMode') || 'pulse';
     }
     return window.localStorage.getItem(modeStorageKey) || 'pulse';
+  }
+
+  function loadStoredRankOrder() {
+    if (tableauAvailable() && tableau.extensions.settings && tableau.extensions.worksheetContent) {
+      return tableau.extensions.settings.get('rankBuildOrder') || 'desc';
+    }
+    return window.localStorage.getItem(rankOrderStorageKey) || 'desc';
   }
 
   function parseNumber(value) {
@@ -580,13 +615,25 @@
   }
 
   function drawBuildMode(clock, maxMagnitude) {
-    const visible = Math.max(1, Math.floor((clock % 8) / 8 * pulseRows.length));
+    const rankedRows = rankBuildRows();
+    const visible = Math.max(1, Math.floor((clock % 8) / 8 * rankedRows.length));
     for (let index = 0; index < visible; index += 1) {
-      const row = pulseRows[index];
+      const row = rankedRows[index];
       const radius = 2.5 + 19 * Math.sqrt(row.magnitude / maxMagnitude);
       drawCircle(row.x, row.y, radius, row.value >= 0 ? positiveColor : negativeColor, 0.55, false);
       drawCircle(row.x, row.y, 2.5, row.value >= 0 ? positiveColor : negativeColor, 0.95, true);
     }
+  }
+
+  function rankBuildRows() {
+    const direction = currentRankOrder === 'asc' ? 1 : -1;
+    return pulseRows
+      .slice()
+      .sort((a, b) => {
+        const valueDiff = (a.value - b.value) * direction;
+        if (valueDiff !== 0) return valueDiff;
+        return b.magnitude - a.magnitude;
+      });
   }
 
   function drawScannerMode(clock, maxMagnitude) {
@@ -680,6 +727,10 @@
       button.addEventListener('click', () => setMode(button.dataset.mode));
     }
 
+    for (const button of rankOrderButtons) {
+      button.addEventListener('click', () => setRankOrder(button.dataset.rankOrder));
+    }
+
     playToggle.addEventListener('click', () => {
       isPlaying = !isPlaying;
       playToggle.textContent = isPlaying ? 'Pause' : 'Play';
@@ -708,6 +759,7 @@
   async function bootTableau() {
     await tableau.extensions.initializeAsync();
     worksheet = tableau.extensions.worksheetContent.worksheet;
+    setRankOrder(loadStoredRankOrder(), false);
     setMode(loadStoredMode(), false);
     worksheet.addEventListener(tableau.TableauEventType.SummaryDataChanged, loadFromTableau);
     await loadFromTableau();
@@ -717,6 +769,7 @@
     bindEvents();
     await loadMap();
     resizeCanvas();
+    setRankOrder(loadStoredRankOrder(), false);
     setMode(loadStoredMode(), false);
 
     if (tableauAvailable()) {

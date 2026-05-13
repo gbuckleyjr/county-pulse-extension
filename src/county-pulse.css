@@ -126,6 +126,42 @@ button:hover {
   color: var(--panel);
 }
 
+.rank-order {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgba(255, 253, 250, 0.78);
+  padding: 3px;
+}
+
+.rank-order span {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+  padding: 0 6px;
+  white-space: nowrap;
+}
+
+.rank-order-button {
+  min-height: 28px;
+  border: 0;
+  border-radius: 5px;
+  background: transparent;
+  color: var(--muted);
+  padding: 5px 10px;
+}
+
+.rank-order-button:hover {
+  background: rgba(49, 95, 114, 0.08);
+}
+
+.rank-order-button.is-active {
+  background: var(--focus);
+  color: var(--panel);
+}
+
 .speed-control {
   display: grid;
   grid-template-columns: auto minmax(112px, 160px);
@@ -266,6 +302,16 @@ button:hover {
   .mode-switch {
     width: 100%;
     grid-template-columns: 1fr;
+  }
+
+  .rank-order {
+    align-items: stretch;
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .rank-order span {
+    padding: 4px 8px;
   }
 
   .status-pill {

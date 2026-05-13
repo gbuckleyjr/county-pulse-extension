@@ -17,6 +17,11 @@
         <button class="mode-button" type="button" data-mode="build" aria-pressed="false">Rank Build</button>
         <button class="mode-button" type="button" data-mode="scanner" aria-pressed="false">Scanner</button>
       </div>
+      <div id="rank-order-control" class="rank-order" role="group" aria-label="Rank Build order" hidden>
+        <span>Rank order</span>
+        <button class="rank-order-button is-active" type="button" data-rank-order="desc" aria-pressed="true">High to low</button>
+        <button class="rank-order-button" type="button" data-rank-order="asc" aria-pressed="false">Low to high</button>
+      </div>
       <div class="control-cluster">
         <span id="source-status" class="status-pill">Loading</span>
         <label class="speed-control" for="speed-range">

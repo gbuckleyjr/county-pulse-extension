@@ -24,7 +24,7 @@ The built-in Tableau Detail and Tooltip tiles can carry extra fields for hover c
 ## Modes
 
 - `Pulse`: repeating outward rings for the largest county marks.
-- `Rank Build`: reveals marks in magnitude order.
+- `Rank Build`: reveals marks by signed value. When this mode is selected, a rank-order control appears for `High to low` or `Low to high`.
 - `Scanner`: sweeps across the map and lights nearby marks.
 
 ## Notes

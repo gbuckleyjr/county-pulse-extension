@@ -1,0 +1,53 @@
+Tableau Public Listing Copy
+
+Suggested title
+Migration Pulse: U.S. County Net Migration, 2010-2020
+
+Short subtitle
+A Makeover Monday dashboard with a custom Tableau Viz Extension for animated county-level net migration.
+
+Description
+This Makeover Monday visualization explores U.S. county net migration during the 2010s. The dashboard uses standard Tableau views for context and a custom Tableau Viz Extension, County Pulse, to animate county-level gains and losses on a U.S. map.
+
+The extension is driven by Tableau's Marks card: county FIPS identifies the geography, a signed metric controls direction and color, and an optional size metric controls pulse magnitude. In this view, teal counties gained population through net migration and orange counties saw net outflow.
+
+Important caveat: this dataset is net migration, not origin-destination movement. The animation shows where county totals were positive or negative over the decade; it does not show people moving from one specific county to another.
+
+Suggested tags
+MakeoverMonday
+Tableau
+TableauPublic
+TableauVizExtension
+VizExtension
+DataVisualization
+DataViz
+Maps
+USCounties
+Migration
+Population
+Demographics
+Geospatial
+Analytics
+D3
+JavaScript
+
+Suggested hashtags
+#MakeoverMonday
+#Tableau
+#TableauPublic
+#DataViz
+#DataVisualization
+#TableauVizExtension
+#VizExtensions
+#Maps
+#Geospatial
+#Migration
+#Demographics
+#D3js
+#JavaScript
+
+Alt text / accessibility note
+Animated U.S. county map showing positive and negative net migration by county. Teal marks indicate counties with net gains, orange marks indicate counties with net losses, and pulse size represents migration magnitude.
+
+Source / methodology note
+Net migration means in-migrants minus out-migrants. County-level values are summarized for the 2010-2020 period. The animated pulse layer is a visual emphasis technique and should not be interpreted as origin-destination flow.
