@@ -6,6 +6,10 @@ County Pulse is a Tableau **viz extension** for animated U.S. county pulse maps.
 
 - Extension app: `https://gbuckleyjr.github.io/county-pulse-extension/index.html`
 - Viz extension manifest: `https://gbuckleyjr.github.io/county-pulse-extension/CountyPulse.trex`
+- Privacy policy: [`PRIVACY.md`](PRIVACY.md)
+- Terms: [`TERMS.md`](TERMS.md)
+- Support: [`SUPPORT.md`](SUPPORT.md)
+- Security: [`SECURITY.md`](SECURITY.md)
 
 ## Tableau Setup
 
@@ -31,3 +35,5 @@ County Pulse uses Tableau's native tooltip on hover, so tooltip content and form
 ## Notes
 
 County Pulse currently supports U.S. county geometry only. The visual expects one summarized mark per county for the cleanest result.
+
+County Pulse reads Tableau worksheet summary data exposed to the extension and uses Tableau extension settings for UI preferences. It does not request underlying data permissions, send workbook data to external APIs, collect analytics, or store workbook data outside the browser session.
