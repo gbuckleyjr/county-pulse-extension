@@ -378,19 +378,19 @@
   }
 
   async function readSummaryData(activeWorksheet) {
-    if (activeWorksheet.getSummaryDataReaderAsync) {
-      const reader = await activeWorksheet.getSummaryDataReaderAsync(10000, {
-        ignoreSelection: true
+    if (activeWorksheet.getSummaryDataAsync) {
+      return activeWorksheet.getSummaryDataAsync({
+        ignoreSelection: true,
+        maxRows: 10000
       });
-      const page = await reader.getPageAsync(0);
-      if (reader.releaseAsync) await reader.releaseAsync();
-      return page;
     }
 
-    return activeWorksheet.getSummaryDataAsync({
+    const reader = await activeWorksheet.getSummaryDataReaderAsync(10000, {
       ignoreSelection: true,
-      maxRows: 10000
     });
+    const page = await reader.getPageAsync(0);
+    if (reader.releaseAsync) await reader.releaseAsync();
+    return page;
   }
 
   async function loadFromTableau() {
@@ -499,7 +499,9 @@
         body: 'Check that County FIPS values are populated and Signed Value is numeric.'
       });
       const sizeName = sizeColumn ? columnLabel(sizeColumn) : `${columnLabel(valueColumn)} (absolute)`;
-      setStatus(`${formatNumber.format(encodedRows.length)} marks | Size: ${sizeName}`);
+      const validTooltipCount = encodedRows.filter((row) => Number.isFinite(row.tupleId)).length;
+      const tooltipSource = validTooltipCount ? 'Tableau' : 'Extension';
+      setStatus(`${formatNumber.format(encodedRows.length)} marks | Size: ${sizeName} | Tooltips: ${tooltipSource}`);
     } catch (error) {
       console.error(error);
       showEmpty(true, {
