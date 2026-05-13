@@ -28,6 +28,10 @@ County Pulse uses Tableau's native tooltip behavior where available, so authors 
 
 ## Animation Modes
 
+`Static`
+
+Fixed county fills and magnitude marks without motion. Use this mode for production dashboards, screenshots, and reduced-motion contexts.
+
 `Pulse`
 
 Repeating outward rings highlight the largest county marks by magnitude.

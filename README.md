@@ -30,6 +30,7 @@ County Pulse uses Tableau's native tooltip on hover, so tooltip content and form
 
 ## Modes
 
+- `Static`: fixed county fills and magnitude marks without motion, useful for production dashboards and screenshots.
 - `Pulse`: repeating outward rings for the largest county marks.
 - `Rank Build`: reveals marks by signed value. When this mode is selected, a rank-order control appears for `High to low` or `Low to high`.
 - `Scanner`: sweeps across the map and lights nearby marks.

@@ -103,9 +103,15 @@ button:hover {
   border-color: var(--focus);
 }
 
+button:disabled,
+input:disabled {
+  cursor: not-allowed;
+  opacity: 0.58;
+}
+
 .mode-switch {
   display: inline-grid;
-  grid-template-columns: repeat(3, minmax(86px, auto));
+  grid-template-columns: repeat(4, minmax(76px, auto));
   gap: 3px;
   border: 1px solid var(--line);
   border-radius: 8px;

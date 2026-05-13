@@ -23,7 +23,7 @@
   const pulseLimit = 180;
   const modeStorageKey = 'countyPulseMode';
   const rankOrderStorageKey = 'countyPulseRankOrder';
-  const allowedModes = new Set(['pulse', 'build', 'scanner']);
+  const allowedModes = new Set(['static', 'pulse', 'build', 'scanner']);
   const allowedRankOrders = new Set(['desc', 'asc']);
   const customEncodingOrder = {
     fips: 0,
@@ -103,6 +103,8 @@
       button.setAttribute('aria-pressed', String(active));
     }
     rankOrderControl.hidden = mode !== 'build';
+    updateAnimationControls();
+    requestDrawFrame();
     if (persist) persistMode(mode);
   }
 
@@ -115,7 +117,20 @@
       button.classList.toggle('is-active', active);
       button.setAttribute('aria-pressed', String(active));
     }
+    requestDrawFrame();
     if (persist) persistRankOrder(order);
+  }
+
+  function updateAnimationControls() {
+    const staticMode = currentMode === 'static';
+    speedRange.disabled = staticMode;
+    playToggle.disabled = staticMode;
+    playToggle.textContent = staticMode ? 'Static' : (isPlaying ? 'Pause' : 'Play');
+  }
+
+  function requestDrawFrame() {
+    cancelAnimationFrame(animationId);
+    animationId = requestAnimationFrame(draw);
   }
 
   async function persistMode(mode) {
@@ -525,6 +540,7 @@
       .sort((a, b) => b.magnitude - a.magnitude)
       .slice(0, pulseLimit);
     baseDirty = true;
+    requestDrawFrame();
   }
 
   async function loadMap() {
@@ -580,7 +596,7 @@
   }
 
   function draw(timestamp) {
-    animationId = requestAnimationFrame(draw);
+    animationId = 0;
     const currentTimestamp = timestamp || 0;
     const elapsed = lastFrameTimestamp === null
       ? 0
@@ -595,6 +611,10 @@
     ctx.clearRect(0, 0, width, height);
     ctx.drawImage(baseCanvas, 0, 0, width, height);
     drawPulses(animationClock);
+
+    if (currentMode !== 'static') {
+      animationId = requestAnimationFrame(draw);
+    }
   }
 
   function drawBaseMap() {
@@ -636,6 +656,11 @@
     if (!pulseRows.length) return;
     const maxMagnitude = d3.max(pulseRows, (row) => row.magnitude) || 1;
 
+    if (currentMode === 'static') {
+      drawStaticMode(maxMagnitude);
+      return;
+    }
+
     if (currentMode === 'build') {
       drawBuildMode(clock, maxMagnitude);
       return;
@@ -657,6 +682,13 @@
       const alpha = 0.2 + 0.48 * (1 - alphaPhase);
       drawCircle(row.x, row.y, radius, row.value >= 0 ? positiveColor : negativeColor, alpha, false);
       drawCircle(row.x, row.y, Math.max(1.8, maxRadius * 0.14), row.value >= 0 ? positiveColor : negativeColor, 0.88, true);
+    }
+  }
+
+  function drawStaticMode(maxMagnitude) {
+    for (const row of pulseRows) {
+      const radius = 2.8 + 14 * Math.sqrt(row.magnitude / maxMagnitude);
+      drawCircle(row.x, row.y, radius, row.value >= 0 ? positiveColor : negativeColor, 0.82, true);
     }
   }
 
@@ -826,8 +858,9 @@
     }
 
     playToggle.addEventListener('click', () => {
+      if (currentMode === 'static') return;
       isPlaying = !isPlaying;
-      playToggle.textContent = isPlaying ? 'Pause' : 'Play';
+      updateAnimationControls();
     });
 
     window.addEventListener('resize', scheduleResize);
@@ -880,8 +913,7 @@
       setStatus('Preview only');
     }
 
-    cancelAnimationFrame(animationId);
-    animationId = requestAnimationFrame(draw);
+    requestDrawFrame();
   }
 
   boot().catch((error) => {
