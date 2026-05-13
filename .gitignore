@@ -27,6 +27,8 @@ Thumbs.db
 desktop.ini
 .vscode/
 .idea/
+AGENTS.md
+**/AGENTS.md
 
 # Generated screenshots and exports
 migration-pulse-extension/*trimmed-screenshot*.png
