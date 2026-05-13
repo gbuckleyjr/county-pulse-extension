@@ -30,5 +30,6 @@ desktop.ini
 
 # Generated screenshots and exports
 migration-pulse-extension/*trimmed-screenshot*.png
+*.twb
 *.hyper
 *.twbx
