@@ -64,6 +64,8 @@
   let baseDirty = true;
   let renderToken = 0;
   let resizeFrame = 0;
+  let lastNativeTooltipTupleId = null;
+  let lastNativeTooltipAt = 0;
   let worksheet = null;
 
   const formatNumber = new Intl.NumberFormat('en-US', {
@@ -379,6 +381,7 @@
       if (token !== renderToken) return;
       const rows = table.data || [];
       const columns = table.columns || [];
+      const marksInfo = table.marksInfo || [];
       const fipsColumn = resolveColumn(columns, fields.fips, [
         /^countyfips$/,
         /^countyfipsstring$/,
@@ -436,7 +439,9 @@
       }));
 
       encodedRows = rows
-        .map((cells) => {
+        .map((cells, index) => {
+          const markInfo = marksInfo[index];
+          const tupleId = markInfo ? Number(markInfo.tupleId) : null;
           const fips = normalizeFips(cellNative(cells, fipsIndex));
           const value = parseNumber(cellNative(cells, valueIndex));
           const explicitSize = sizeIndex >= 0 ? parseNumber(cellNative(cells, sizeIndex)) : null;
@@ -456,6 +461,7 @@
             value,
             magnitude,
             details,
+            tupleId: Number.isFinite(tupleId) ? tupleId : null,
             valueLabel: columnLabel(valueColumn),
             sizeLabel: sizeColumn ? columnLabel(sizeColumn) : columnLabel(valueColumn)
           };
@@ -692,6 +698,12 @@
   }
 
   function showTooltip(row, event) {
+    if (tableauAvailable() && worksheet && worksheet.hoverTupleAsync) {
+      tooltip.hidden = true;
+      showNativeTooltip(row, event);
+      return;
+    }
+
     if (!row) {
       tooltip.hidden = true;
       return;
@@ -715,6 +727,38 @@
     const top = Math.min(stageRect.height - tooltip.offsetHeight - 12, event.clientY - stageRect.top + 14);
     tooltip.style.left = `${Math.max(10, left)}px`;
     tooltip.style.top = `${Math.max(10, top)}px`;
+  }
+
+  function showNativeTooltip(row, event) {
+    if (!row || !Number.isFinite(row.tupleId)) {
+      clearNativeTooltip();
+      return;
+    }
+
+    const now = performance.now();
+    if (row.tupleId === lastNativeTooltipTupleId && now - lastNativeTooltipAt < 80) return;
+
+    lastNativeTooltipTupleId = row.tupleId;
+    lastNativeTooltipAt = now;
+
+    worksheet.hoverTupleAsync(
+      row.tupleId,
+      {
+        tooltipAnchorPoint: {
+          x: event.clientX,
+          y: event.clientY
+        }
+      },
+      true
+    ).catch((error) => {
+      console.warn('Tableau tooltip failed', error);
+    });
+  }
+
+  function clearNativeTooltip() {
+    if (!worksheet || !worksheet.hoverTupleAsync || lastNativeTooltipTupleId === null) return;
+    lastNativeTooltipTupleId = null;
+    worksheet.hoverTupleAsync(0, null, false).catch(() => {});
   }
 
   function formatSigned(value) {
@@ -764,6 +808,7 @@
 
     canvas.addEventListener('mouseleave', () => {
       tooltip.hidden = true;
+      clearNativeTooltip();
       lastPointer = null;
     });
   }

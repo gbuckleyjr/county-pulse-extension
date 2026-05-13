@@ -20,6 +20,7 @@ County Pulse is a Tableau **viz extension** for animated U.S. county pulse maps.
 5. Use Tableau filters, parameters, and calculations normally. The extension redraws from the worksheet's summary data.
 
 The built-in Tableau Detail and Tooltip tiles can carry extra fields for hover context.
+County Pulse uses Tableau's native tooltip on hover, so tooltip content and formatting should be managed from the worksheet's Tooltip shelf instead of inside the extension.
 
 ## Modes
 
