@@ -21,6 +21,18 @@
   const pulseLimit = 180;
   const modeStorageKey = 'countyPulseMode';
   const allowedModes = new Set(['pulse', 'build', 'scanner']);
+  const customEncodingOrder = {
+    fips: 0,
+    value: 1,
+    size: 2,
+    label: 3
+  };
+  const encodingAliases = {
+    fips: ['fips', 'countyfips', 'county fips'],
+    value: ['value', 'signedvalue', 'signed value'],
+    size: ['size', 'pulsesize', 'pulse size'],
+    label: ['label']
+  };
 
   const baseCanvas = document.createElement('canvas');
   const baseCtx = baseCanvas.getContext('2d');
@@ -134,28 +146,49 @@
     return [];
   }
 
-  function encodingKey(encoding) {
-    return encoding.fieldEncodingId || encoding.id || encoding.type || '';
+  function encodingKeys(encoding) {
+    const candidates = [
+      encoding.fieldEncodingId,
+      encoding.id,
+      encoding.type,
+      encoding.name,
+      encoding.caption,
+      encoding.displayName,
+      encoding.displayName && encoding.displayName.text,
+      encoding.fieldEncodingName
+    ].filter(Boolean);
+
+    return candidates.map(normalizeKey).filter(Boolean);
   }
 
-  function getEncodingsById(encodings) {
-    const map = new Map();
-    for (const encoding of encodings) {
-      const fields = extractFieldsFromEncoding(encoding);
-      const key = encodingKey(encoding);
-      if (!key || !fields.length) continue;
-      if (!map.has(key)) map.set(key, []);
-      map.get(key).push(...fields);
-    }
-    return map;
+  function encodingMatches(encoding, aliases) {
+    const targets = aliases.map(normalizeKey);
+    const keys = encodingKeys(encoding);
+    return keys.some((key) => (
+      targets.some((target) => key === target || key.endsWith(target) || key.includes(target))
+    ));
+  }
+
+  function isCustomEncoding(encoding) {
+    return encodingKeys(encoding).includes('custom');
+  }
+
+  function extractCustomEncodingFields(encodings, targetId) {
+    if (!(targetId in customEncodingOrder)) return [];
+    const customEncodings = encodings
+      .filter((encoding) => isCustomEncoding(encoding))
+      .filter((encoding) => extractFieldsFromEncoding(encoding).length);
+    const encoding = customEncodings[customEncodingOrder[targetId]];
+    return encoding ? extractFieldsFromEncoding(encoding) : [];
   }
 
   function extractEncodingFields(encodings, targetIds, fallbackTypes = []) {
-    const map = getEncodingsById(encodings);
-    const fields = [];
-    for (const id of targetIds) {
-      if (map.has(id)) fields.push(...map.get(id));
-    }
+    let fields = encodings
+      .filter((encoding) => targetIds.some((id) => encodingMatches(encoding, encodingAliases[id] || [id])))
+      .flatMap((encoding) => extractFieldsFromEncoding(encoding));
+    if (fields.length) return dedupeFields(fields);
+
+    fields = targetIds.flatMap((id) => extractCustomEncodingFields(encodings, id));
     if (fields.length) return dedupeFields(fields);
 
     const fallback = encodings
