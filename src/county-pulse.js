@@ -63,6 +63,7 @@
   let lastPointer = null;
   let baseDirty = true;
   let renderToken = 0;
+  let resizeFrame = 0;
   let worksheet = null;
 
   const formatNumber = new Intl.NumberFormat('en-US', {
@@ -504,8 +505,8 @@
 
   function resizeCanvas() {
     const bounds = stage.getBoundingClientRect();
-    width = Math.max(320, Math.round(bounds.width));
-    height = Math.max(320, Math.round(bounds.height));
+    width = Math.max(1, Math.round(bounds.width));
+    height = Math.max(1, Math.round(bounds.height));
     pixelRatio = Math.min(window.devicePixelRatio || 1, 2);
 
     canvas.width = Math.round(width * pixelRatio);
@@ -523,6 +524,14 @@
     centroidPath = d3.geoPath(projection);
     calculateCentroids();
     baseDirty = true;
+  }
+
+  function scheduleResize() {
+    cancelAnimationFrame(resizeFrame);
+    resizeFrame = requestAnimationFrame(() => {
+      resizeCanvas();
+      prepareRows();
+    });
   }
 
   function calculateCentroids() {
@@ -736,10 +745,13 @@
       playToggle.textContent = isPlaying ? 'Pause' : 'Play';
     });
 
-    window.addEventListener('resize', () => {
-      resizeCanvas();
-      prepareRows();
-    });
+    window.addEventListener('resize', scheduleResize);
+
+    if (window.ResizeObserver) {
+      const observer = new ResizeObserver(scheduleResize);
+      observer.observe(stage);
+      observer.observe(document.body);
+    }
 
     canvas.addEventListener('mousemove', (event) => {
       const rect = canvas.getBoundingClientRect();
