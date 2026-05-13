@@ -162,7 +162,11 @@
   }
 
   function normalizeKey(value) {
-    return String(value || '')
+    const raw = String(value || '');
+    const tableauInstance = raw.match(/\[(?:none|sum|avg|attr|countd|count|min|max|agg):([^:\]]+):[^\]]+\]/i);
+    const comparable = tableauInstance ? tableauInstance[1] : raw;
+
+    return comparable
       .replace(/\[|\]/g, '')
       .replace(/\b(SUM|AVG|ATTR|COUNTD|COUNT|MIN|MAX|AGG)\((.+)\)/i, '$2')
       .toLowerCase()
@@ -171,6 +175,7 @@
 
   function normalizeFieldName(field) {
     if (!field) return '';
+    if (typeof field === 'string') return field;
     return field.name || field.fieldName || field.caption || field.alias || '';
   }
 
@@ -182,6 +187,8 @@
     if (!encoding) return [];
     if (encoding.field) return [encoding.field];
     if (Array.isArray(encoding.fields)) return encoding.fields;
+    if (encoding.column) return [encoding.column];
+    if (Array.isArray(encoding.columns)) return encoding.columns;
     return [];
   }
 
@@ -190,6 +197,14 @@
       encoding.fieldEncodingId,
       encoding.id,
       encoding.type,
+      encoding.typeName,
+      encoding.customTypeName,
+      encoding.customType,
+      encoding.custom_type_name,
+      encoding.custom_type,
+      encoding.customTypeName && encoding.customTypeName.text,
+      encoding.customType && encoding.customType.name,
+      encoding.customType && encoding.customType.text,
       encoding.name,
       encoding.caption,
       encoding.displayName,
@@ -478,7 +493,8 @@
         title: 'No county marks to draw.',
         body: 'Check that County FIPS values are populated and Signed Value is numeric.'
       });
-      setStatus(`${formatNumber.format(encodedRows.length)} marks`);
+      const sizeName = sizeColumn ? columnLabel(sizeColumn) : `${columnLabel(valueColumn)} (absolute)`;
+      setStatus(`${formatNumber.format(encodedRows.length)} marks | Size: ${sizeName}`);
     } catch (error) {
       console.error(error);
       showEmpty(true, {
