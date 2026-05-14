@@ -34,7 +34,7 @@ Required field mappings:
 
 - `County FIPS` -> County Pulse `County FIPS`
 - `Signed Value` -> County Pulse `Signed Value`
-- `Pulse Size` -> County Pulse `Pulse Size`
+- `Magnitude` -> County Pulse `Magnitude`
 - `Label` -> County Pulse `Label`
 - `Tooltip Detail` -> Tableau Tooltip or Detail
 - `Source` -> Tableau Tooltip or workbook notes
@@ -65,7 +65,7 @@ Run each Highlight setting:
 | blank FIPS | Does not draw; diagnostics report missing FIPS. |
 | `99999` | Does not draw; diagnostics report unmatched county geometry. |
 | duplicate `01001` rows | Draws one county row using largest magnitude; diagnostics report duplicate county rows. |
-| zero `Pulse Size` | Skips overlay for that row; diagnostics report zero magnitude. |
+| zero `Magnitude` | Skips overlay for that row; diagnostics report zero magnitude. |
 
 ## Tooltip Validation
 
@@ -73,7 +73,7 @@ Run each Highlight setting:
 2. Hover known counties in Tableau Desktop.
 3. Confirm Tableau native tooltip appears when `hoverTupleAsync` is available.
 4. Confirm fallback extension tooltip appears if native tooltip is unavailable.
-5. Confirm tooltip includes label, signed value, pulse size, and detail fields.
+5. Confirm tooltip includes label, signed value, magnitude, and detail fields.
 
 ## Screenshot Checklist
 

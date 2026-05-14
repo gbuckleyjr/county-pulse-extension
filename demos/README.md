@@ -6,7 +6,7 @@ These demo materials are inputs for reusable Tableau workbooks. They are separat
 
 `Migration Pulse`
 
-The original Makeover Monday migration workbook remains the first demo scenario. It proves the core signed-measure pattern: positive and negative county values, magnitude cues, Tableau filters, and native tooltip content.
+The original Makeover Monday migration workbook remains the first demo scenario. It proves the core signed-measure pattern: positive and negative county values, magnitude cues, Tableau filters, and native tooltip content. Migration-specific workbook and social copy lives in [`migration/`](migration/).
 
 `Unemployment Gap 2016`
 
@@ -29,7 +29,7 @@ Public source: public county population and density dataset from `balsama/us_cou
 1. Connect Tableau Desktop to one CSV under `demos/data/`.
 2. Set `County FIPS` to string so leading zeroes stay intact.
 3. Add `CountyPulse.trex` as a Viz Extension on a worksheet.
-4. Map `County FIPS`, `Signed Value`, `Pulse Size`, and `Label` to the custom Marks card encodings.
+4. Map `County FIPS`, `Signed Value`, `Magnitude`, and `Label` to the custom Marks card encodings.
 5. Add `Tooltip Detail` and `Source` to Tooltip or Detail.
 6. Use `Static` for screenshots, then `Pulse`, `Rank Build`, or `Scanner` for interactive demos.
 

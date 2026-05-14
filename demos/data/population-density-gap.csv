@@ -1,4 +1,4 @@
-﻿"County FIPS","County","State","Signed Value","Pulse Size","Label","Tooltip Detail","Source"
+﻿"County FIPS","County","State","Signed Value","Magnitude","Label","Tooltip Detail","Source"
 "01001","Autauga County","Alabama","62","62","Autauga County, Alabama","Population density 103 people/sq mi; gap vs county median 62","Public county population and density dataset from balsama/us_counties_data"
 "01003","Baldwin County","Alabama","124","124","Baldwin County, Alabama","Population density 165 people/sq mi; gap vs county median 124","Public county population and density dataset from balsama/us_counties_data"
 "01005","Barbour County","Alabama","-13","13","Barbour County, Alabama","Population density 28 people/sq mi; gap vs county median -13","Public county population and density dataset from balsama/us_counties_data"

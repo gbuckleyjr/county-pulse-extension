@@ -28,7 +28,7 @@ County Pulse is client-side and uses Tableau worksheet summary data exposed to t
 - U.S. county geometry keyed by 5-digit county FIPS.
 - Positive and negative signed values shown with distinct colors.
 - Configurable positive, negative, and no-mark colors.
-- Optional pulse magnitude field, with absolute signed value fallback.
+- Optional Magnitude field, with absolute signed value fallback.
 - Configurable top-N highlight limit, including an All option.
 - Data diagnostics for missing, invalid, unmatched, duplicate, and state-total FIPS rows.
 - Static, pulse, rank build, and scanner modes.

@@ -35,7 +35,7 @@
       <tooltip>Drop the signed metric. Positive values render teal; negative values render orange.</tooltip>
     </encoding>
     <encoding id="size">
-      <display-name>Pulse Size</display-name>
+      <display-name>Magnitude</display-name>
       <data-spec>
         <data-type>numeric</data-type>
       </data-spec>
@@ -45,7 +45,7 @@
       </role-spec>
       <fields max-count="1" />
       <encoding-icon token="size" />
-      <tooltip>Optional size metric. If omitted, County Pulse uses absolute Signed Value.</tooltip>
+      <tooltip>Optional magnitude metric. If omitted, County Pulse uses absolute Signed Value.</tooltip>
     </encoding>
     <encoding id="label">
       <display-name>Label</display-name>

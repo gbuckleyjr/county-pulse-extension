@@ -57,7 +57,7 @@
   const encodingAliases = {
     fips: ['fips', 'countyfips', 'county fips'],
     value: ['value', 'signedvalue', 'signed value'],
-    size: ['size', 'pulsesize', 'pulse size'],
+    size: ['size', 'magnitude', 'pulsesize', 'pulse size'],
     label: ['label']
   };
 
@@ -125,7 +125,7 @@
       `${formatNumber.format(currentDiagnostics.sourceRows || encodedRows.length)} rows`,
       diagnosticStatus(currentDiagnostics),
       pulseLimitStatus(),
-      `Size: ${currentSizeName}`,
+      `Magnitude: ${currentSizeName}`,
       `Tooltips: ${currentTooltipSource}`
     ].join(' | '));
   }
@@ -195,7 +195,7 @@
     ].filter((row, index) => index === 0 || row[1] > 0);
 
     if (currentDiagnostics.invalidSizeRows > 0) {
-      rows.push(['Bad Pulse Size', currentDiagnostics.invalidSizeRows]);
+      rows.push(['Bad Magnitude', currentDiagnostics.invalidSizeRows]);
     }
 
     const counts = rows
@@ -216,7 +216,7 @@
     if (diagnostics.missingValueRows || diagnostics.invalidValueRows) return 'Signed Value must be numeric for every county mark.';
     if (diagnostics.duplicateRows) return 'Aggregate to one mark per county; County Pulse draws the largest magnitude row.';
     if (diagnostics.zeroMagnitudeRows) return 'Zero-size rows are skipped because no pulse can be drawn.';
-    if (diagnostics.invalidSizeRows) return 'Bad Pulse Size rows fall back to absolute Signed Value.';
+    if (diagnostics.invalidSizeRows) return 'Bad Magnitude rows fall back to absolute Signed Value.';
     return '';
   }
 
@@ -634,7 +634,7 @@
     const mapped = [
       `FIPS: ${fieldNames(fields.fips).join(', ') || 'none'}`,
       `Value: ${fieldNames(fields.value).join(', ') || 'none'}`,
-      `Size: ${fieldNames(fields.size).join(', ') || 'none'}`,
+      `Magnitude: ${fieldNames(fields.size).join(', ') || 'none'}`,
       `Label: ${fieldNames(fields.label).join(', ') || 'none'}`
     ].join(' | ');
     const columnNames = columns

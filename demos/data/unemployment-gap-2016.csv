@@ -1,4 +1,4 @@
-﻿"County FIPS","County","State","Signed Value","Pulse Size","Label","Tooltip Detail","Source"
+﻿"County FIPS","County","State","Signed Value","Magnitude","Label","Tooltip Detail","Source"
 "01001","Autauga County","AL","0.3","0.3","Autauga County, AL","2016 unemployment 5.3%; gap vs county median 0.3 percentage points","BLS LAUS 2016 via Plotly public sample dataset"
 "01003","Baldwin County","AL","0.4","0.4","Baldwin County, AL","2016 unemployment 5.4%; gap vs county median 0.4 percentage points","BLS LAUS 2016 via Plotly public sample dataset"
 "01005","Barbour County","AL","3.6","3.6","Barbour County, AL","2016 unemployment 8.6%; gap vs county median 3.6 percentage points","BLS LAUS 2016 via Plotly public sample dataset"

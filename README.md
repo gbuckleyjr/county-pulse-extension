@@ -24,7 +24,7 @@ County Pulse is a Tableau **viz extension** for animated U.S. county pulse maps.
 4. Map fields to the custom encoding tiles:
    - `County FIPS`: required 5-digit U.S. county FIPS field. Numeric FIPS values are padded when possible.
    - `Signed Value`: required numeric measure. Positive values render teal; negative values render orange.
-   - `Pulse Size`: optional numeric measure. If omitted, County Pulse uses absolute Signed Value.
+   - `Magnitude`: optional numeric measure. If omitted, County Pulse uses absolute Signed Value.
    - `Label`: optional text label for hover, such as county name.
 5. Use Tableau filters, parameters, and calculations normally. The extension redraws from the worksheet's summary data.
 
@@ -50,8 +50,11 @@ Use the header color controls to set positive, negative, and no-mark colors. Tab
 
 Use the `Highlight` control to choose how many county marks receive animated or static magnitude overlays. The base county map still renders all available county rows; the limit controls the top-N overlay used by `Static`, `Pulse`, `Rank Build`, and `Scanner` modes. Choose `All` for full overlay coverage when performance allows.
 
-## Notes
+## Limitations
 
-County Pulse currently supports U.S. county geometry only. The visual expects one summarized mark per county for the cleanest result.
+- U.S. county geometry only.
+- Best with one summarized mark per county.
+- Requires a 5-digit county FIPS field; state-total rows such as `01000` should be filtered out.
+- Tableau Public compatibility is not confirmed until Tableau review is complete.
 
 County Pulse reads Tableau worksheet summary data exposed to the extension and uses Tableau extension settings for UI preferences. It does not request underlying data permissions, send workbook data to external APIs, collect analytics, or store workbook data outside the browser session.

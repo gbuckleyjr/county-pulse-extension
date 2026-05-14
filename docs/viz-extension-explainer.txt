@@ -6,12 +6,12 @@ The user adds it from the Marks card, then maps fields into custom encoding tile
 
 - County FIPS tells the extension which county to draw.
 - Signed Value tells it whether the county is positive or negative.
-- Pulse Size optionally controls how large the pulse should be.
+- Magnitude optionally controls how large the pulse should be.
 - Label optionally controls the hover label.
 
 This matters because Tableau still does the Tableau work. Data connections, calculations, filters, parameters, and dashboard actions stay in the workbook. The extension receives the summarized worksheet data and uses JavaScript, D3, Canvas, and county geometry to draw a visual layer that Tableau does not provide out of the box.
 
-For the Makeover Monday migration view, the extension uses net migration as the signed value. Positive counties are shown in teal, negative counties are shown in orange, and pulse size represents magnitude. The animation is intentionally abstract: it shows where net totals are large or small, but it does not show exact movement paths between counties.
+County Pulse is metric-agnostic. Demo workbooks can use migration balances, unemployment gaps, density gaps, or any other signed county-level measure. The animation is intentionally abstract: it emphasizes county magnitude and direction, not movement paths or flows between counties.
 
 In short: Tableau handles the data model and interactivity. County Pulse adds a custom animated county-map mark type.
 

@@ -14,7 +14,7 @@ Numeric measure that controls direction and color. Positive values render in the
 
 ## Optional Fields
 
-`Pulse Size`
+`Magnitude`
 
 Numeric measure that controls pulse magnitude. If this field is not supplied, County Pulse uses the absolute value of `Signed Value`.
 
@@ -67,7 +67,7 @@ The `Highlight` control sets the number of county marks used for animated or sta
 - Use one summarized mark per county.
 - Filter out state-total rows such as `01000`.
 - Use a signed measure when positive and negative direction matters.
-- Use `Pulse Size` when magnitude differs from absolute signed value.
+- Use `Magnitude` when magnitude differs from absolute signed value.
 - Adjust positive, negative, and no-mark colors to match the dashboard palette.
 - Use a lower Highlight limit for focused stories or dense dashboards.
 - Keep tooltip definitions in Tableau for consistent dashboard behavior.

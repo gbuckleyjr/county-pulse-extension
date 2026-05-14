@@ -6,7 +6,7 @@ All demo CSVs are public, county-level aggregate data. No private credentials, l
 
 - `County FIPS`: map to County Pulse `County FIPS`.
 - `Signed Value`: map to County Pulse `Signed Value`.
-- `Pulse Size`: map to County Pulse `Pulse Size`.
+- `Magnitude`: map to County Pulse `Magnitude`.
 - `Label`: map to County Pulse `Label`.
 - `Tooltip Detail`: add to Tableau Tooltip or Detail.
 - `Source`: add to Tableau Tooltip or workbook notes.
