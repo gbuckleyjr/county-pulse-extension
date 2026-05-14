@@ -10,19 +10,37 @@
   const rankOrderButtons = Array.from(document.querySelectorAll('[data-rank-order]'));
   const speedRange = document.getElementById('speed-range');
   const playToggle = document.getElementById('play-toggle');
+  const colorInputs = {
+    positive: document.getElementById('positive-color'),
+    negative: document.getElementById('negative-color'),
+    missing: document.getElementById('missing-color')
+  };
+  const resetColorsButton = document.getElementById('reset-colors');
   const tooltip = document.getElementById('tooltip');
   const emptyState = document.getElementById('empty-state');
 
-  const positiveColor = '#14957f';
-  const negativeColor = '#d36435';
+  const defaultColors = {
+    positive: '#14957f',
+    negative: '#d36435',
+    missing: '#d6cec1'
+  };
   const waterColor = '#e7eef0';
   const landColor = '#ece4d7';
-  const missingColor = '#d6cec1';
   const countyBoundaryColor = 'rgba(72, 78, 72, 0.26)';
   const stateBoundaryColor = 'rgba(45, 54, 56, 0.44)';
   const pulseLimit = 180;
   const modeStorageKey = 'countyPulseMode';
   const rankOrderStorageKey = 'countyPulseRankOrder';
+  const colorStorageKeys = {
+    positive: 'countyPulsePositiveColor',
+    negative: 'countyPulseNegativeColor',
+    missing: 'countyPulseMissingColor'
+  };
+  const colorSettingKeys = {
+    positive: 'positiveColor',
+    negative: 'negativeColor',
+    missing: 'missingColor'
+  };
   const allowedModes = new Set(['static', 'pulse', 'build', 'scanner']);
   const allowedRankOrders = new Set(['desc', 'asc']);
   const customEncodingOrder = {
@@ -56,6 +74,9 @@
   let pulseRows = [];
   let currentMode = 'pulse';
   let currentRankOrder = 'desc';
+  let positiveColor = defaultColors.positive;
+  let negativeColor = defaultColors.negative;
+  let missingColor = defaultColors.missing;
   let isPlaying = true;
   let animationId = 0;
   let animationClock = 0;
@@ -163,6 +184,68 @@
       return tableau.extensions.settings.get('rankBuildOrder') || 'desc';
     }
     return window.localStorage.getItem(rankOrderStorageKey) || 'desc';
+  }
+
+  function normalizeColor(value, fallback) {
+    const color = String(value || '').trim().toLowerCase();
+    return /^#[0-9a-f]{6}$/.test(color) ? color : fallback;
+  }
+
+  function loadStoredColors() {
+    if (tableauAvailable() && tableau.extensions.settings && tableau.extensions.worksheetContent) {
+      positiveColor = normalizeColor(tableau.extensions.settings.get(colorSettingKeys.positive), defaultColors.positive);
+      negativeColor = normalizeColor(tableau.extensions.settings.get(colorSettingKeys.negative), defaultColors.negative);
+      missingColor = normalizeColor(tableau.extensions.settings.get(colorSettingKeys.missing), defaultColors.missing);
+    } else {
+      positiveColor = normalizeColor(window.localStorage.getItem(colorStorageKeys.positive), defaultColors.positive);
+      negativeColor = normalizeColor(window.localStorage.getItem(colorStorageKeys.negative), defaultColors.negative);
+      missingColor = normalizeColor(window.localStorage.getItem(colorStorageKeys.missing), defaultColors.missing);
+    }
+    updateColorControls();
+  }
+
+  function updateColorControls() {
+    colorInputs.positive.value = positiveColor;
+    colorInputs.negative.value = negativeColor;
+    colorInputs.missing.value = missingColor;
+    document.documentElement.style.setProperty('--positive', positiveColor);
+    document.documentElement.style.setProperty('--negative', negativeColor);
+    document.documentElement.style.setProperty('--missing', missingColor);
+  }
+
+  async function persistColors() {
+    if (tableauAvailable() && tableau.extensions.settings && tableau.extensions.worksheetContent) {
+      tableau.extensions.settings.set(colorSettingKeys.positive, positiveColor);
+      tableau.extensions.settings.set(colorSettingKeys.negative, negativeColor);
+      tableau.extensions.settings.set(colorSettingKeys.missing, missingColor);
+      await tableau.extensions.settings.saveAsync();
+      return;
+    }
+    window.localStorage.setItem(colorStorageKeys.positive, positiveColor);
+    window.localStorage.setItem(colorStorageKeys.negative, negativeColor);
+    window.localStorage.setItem(colorStorageKeys.missing, missingColor);
+  }
+
+  function setColor(colorKey, value, persist = true) {
+    if (!Object.prototype.hasOwnProperty.call(defaultColors, colorKey)) return;
+    const normalized = normalizeColor(value, defaultColors[colorKey]);
+    if (colorKey === 'positive') positiveColor = normalized;
+    if (colorKey === 'negative') negativeColor = normalized;
+    if (colorKey === 'missing') missingColor = normalized;
+    updateColorControls();
+    baseDirty = true;
+    requestDrawFrame();
+    if (persist) persistColors();
+  }
+
+  function resetColors() {
+    positiveColor = defaultColors.positive;
+    negativeColor = defaultColors.negative;
+    missingColor = defaultColors.missing;
+    updateColorControls();
+    baseDirty = true;
+    requestDrawFrame();
+    persistColors();
   }
 
   function parseNumber(value) {
@@ -857,6 +940,13 @@
       button.addEventListener('click', () => setRankOrder(button.dataset.rankOrder));
     }
 
+    for (const [colorKey, input] of Object.entries(colorInputs)) {
+      input.addEventListener('input', () => setColor(colorKey, input.value, false));
+      input.addEventListener('change', () => setColor(colorKey, input.value, true));
+    }
+
+    resetColorsButton.addEventListener('click', resetColors);
+
     playToggle.addEventListener('click', () => {
       if (currentMode === 'static') return;
       isPlaying = !isPlaying;
@@ -890,6 +980,7 @@
   async function bootTableau() {
     await tableau.extensions.initializeAsync();
     worksheet = tableau.extensions.worksheetContent.worksheet;
+    loadStoredColors();
     setRankOrder(loadStoredRankOrder(), false);
     setMode(loadStoredMode(), false);
     worksheet.addEventListener(tableau.TableauEventType.SummaryDataChanged, loadFromTableau);
@@ -900,6 +991,7 @@
     bindEvents();
     await loadMap();
     resizeCanvas();
+    loadStoredColors();
     setRankOrder(loadStoredRankOrder(), false);
     setMode(loadStoredMode(), false);
 

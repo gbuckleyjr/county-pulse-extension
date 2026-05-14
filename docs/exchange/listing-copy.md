@@ -27,6 +27,7 @@ County Pulse is client-side and uses Tableau worksheet summary data exposed to t
 - Tableau worksheet/viz extension configured through custom Marks card encodings.
 - U.S. county geometry keyed by 5-digit county FIPS.
 - Positive and negative signed values shown with distinct colors.
+- Configurable positive, negative, and no-mark colors.
 - Optional pulse magnitude field, with absolute signed value fallback.
 - Static, pulse, rank build, and scanner modes.
 - Native Tableau tooltip support where available.

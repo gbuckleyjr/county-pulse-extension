@@ -35,6 +35,10 @@ County Pulse uses Tableau's native tooltip on hover, so tooltip content and form
 - `Rank Build`: reveals marks by signed value. When this mode is selected, a rank-order control appears for `High to low` or `Low to high`.
 - `Scanner`: sweeps across the map and lights nearby marks.
 
+## Color Controls
+
+Use the header color controls to set positive, negative, and no-mark colors. Tableau saves those preferences with the extension settings. The same colors update the canvas rendering and legend immediately.
+
 ## Notes
 
 County Pulse currently supports U.S. county geometry only. The visual expects one summarized mark per county for the cleanest result.

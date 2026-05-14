@@ -173,6 +173,45 @@ input:disabled {
   color: var(--panel);
 }
 
+.color-controls {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgba(255, 253, 250, 0.78);
+  padding: 4px;
+}
+
+.color-control {
+  display: grid;
+  grid-template-columns: auto 24px;
+  align-items: center;
+  gap: 5px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.color-control input {
+  width: 24px;
+  height: 24px;
+  min-height: 24px;
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  background: transparent;
+  cursor: pointer;
+  padding: 1px;
+}
+
+.reset-colors {
+  min-height: 28px;
+  padding: 4px 8px;
+  font-size: 12px;
+}
+
 .speed-control {
   display: grid;
   grid-template-columns: auto minmax(112px, 160px);
@@ -325,6 +364,11 @@ input:disabled {
 
   .rank-order span {
     padding: 4px 8px;
+  }
+
+  .color-controls {
+    justify-content: center;
+    width: 100%;
   }
 
   .status-pill {

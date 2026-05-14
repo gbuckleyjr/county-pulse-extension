@@ -48,10 +48,15 @@ A scanning band sweeps across the map and lights nearby county marks.
 
 County Pulse reads Tableau worksheet summary data exposed through the Extensions API. It does not request underlying data permissions, send workbook data to external APIs, collect analytics, or store workbook data outside the browser session.
 
+## Color Controls
+
+Authors can set positive, negative, and no-mark colors from the extension header. Color changes update the canvas and legend immediately, and Tableau stores the selected colors with the extension settings.
+
 ## Best Practices
 
 - Use one summarized mark per county.
 - Filter out state-total rows such as `01000`.
 - Use a signed measure when positive and negative direction matters.
 - Use `Pulse Size` when magnitude differs from absolute signed value.
+- Adjust positive, negative, and no-mark colors to match the dashboard palette.
 - Keep tooltip definitions in Tableau for consistent dashboard behavior.

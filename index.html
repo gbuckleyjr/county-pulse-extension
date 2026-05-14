@@ -25,6 +25,21 @@
       </div>
       <div class="control-cluster">
         <span id="source-status" class="status-pill">Loading</span>
+        <div class="color-controls" role="group" aria-label="Map colors">
+          <label class="color-control" for="positive-color">
+            <span>Positive</span>
+            <input id="positive-color" type="color" value="#14957f" />
+          </label>
+          <label class="color-control" for="negative-color">
+            <span>Negative</span>
+            <input id="negative-color" type="color" value="#d36435" />
+          </label>
+          <label class="color-control" for="missing-color">
+            <span>No mark</span>
+            <input id="missing-color" type="color" value="#d6cec1" />
+          </label>
+          <button id="reset-colors" class="reset-colors" type="button">Reset</button>
+        </div>
         <label class="speed-control" for="speed-range">
           Speed
           <input id="speed-range" type="range" min="35" max="180" value="90" />
