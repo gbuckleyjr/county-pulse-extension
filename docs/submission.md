@@ -6,6 +6,13 @@ Status date: 2026-05-14
 
 Submit County Pulse for Tableau review so it can become a trusted Exchange listing and get a clear answer on Tableau Public compatibility.
 
+## Current Submission Status
+
+- Community Portal PR: `https://github.com/tableau/extensions-api/pull/635`
+- PR target branch: `gh-pages`, because the live Community Portal files currently live under `website/static/community/` on that branch.
+- PR contents: `community_extensions.json` entry and `CommunityManifests/CountyPulse.trex`.
+- Exchange contributor email: not sent from this repo.
+
 ## Official Tableau References
 
 - Extension Gallery submission guide: `https://tableau.github.io/extensions-api/docs/ux_extension_gallery/`
