@@ -29,6 +29,7 @@ County Pulse is client-side and uses Tableau worksheet summary data exposed to t
 - Positive and negative signed values shown with distinct colors.
 - Configurable positive, negative, and no-mark colors.
 - Optional pulse magnitude field, with absolute signed value fallback.
+- Configurable top-N highlight limit, including an All option.
 - Static, pulse, rank build, and scanner modes.
 - Native Tableau tooltip support where available.
 - Client-side static hosting with bundled map and JavaScript assets.

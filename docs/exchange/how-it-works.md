@@ -52,6 +52,10 @@ County Pulse reads Tableau worksheet summary data exposed through the Extensions
 
 Authors can set positive, negative, and no-mark colors from the extension header. Color changes update the canvas and legend immediately, and Tableau stores the selected colors with the extension settings.
 
+## Highlight Limit
+
+The `Highlight` control sets the number of county marks used for animated or static magnitude overlays. The base county map still colors all available rows. Use Top 50, Top 100, Top 180, Top 500, or All depending on story needs and performance.
+
 ## Best Practices
 
 - Use one summarized mark per county.
@@ -59,4 +63,5 @@ Authors can set positive, negative, and no-mark colors from the extension header
 - Use a signed measure when positive and negative direction matters.
 - Use `Pulse Size` when magnitude differs from absolute signed value.
 - Adjust positive, negative, and no-mark colors to match the dashboard palette.
+- Use a lower Highlight limit for focused stories or dense dashboards.
 - Keep tooltip definitions in Tableau for consistent dashboard behavior.

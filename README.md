@@ -39,6 +39,10 @@ County Pulse uses Tableau's native tooltip on hover, so tooltip content and form
 
 Use the header color controls to set positive, negative, and no-mark colors. Tableau saves those preferences with the extension settings. The same colors update the canvas rendering and legend immediately.
 
+## Highlight Limit
+
+Use the `Highlight` control to choose how many county marks receive animated or static magnitude overlays. The base county map still renders all available county rows; the limit controls the top-N overlay used by `Static`, `Pulse`, `Rank Build`, and `Scanner` modes. Choose `All` for full overlay coverage when performance allows.
+
 ## Notes
 
 County Pulse currently supports U.S. county geometry only. The visual expects one summarized mark per county for the cleanest result.

@@ -40,6 +40,16 @@
           </label>
           <button id="reset-colors" class="reset-colors" type="button">Reset</button>
         </div>
+        <label class="limit-control" for="pulse-limit-select">
+          Highlight
+          <select id="pulse-limit-select">
+            <option value="50">Top 50</option>
+            <option value="100">Top 100</option>
+            <option value="180" selected>Top 180</option>
+            <option value="500">Top 500</option>
+            <option value="0">All</option>
+          </select>
+        </label>
         <label class="speed-control" for="speed-range">
           Speed
           <input id="speed-range" type="range" min="35" max="180" value="90" />

@@ -16,6 +16,7 @@
     missing: document.getElementById('missing-color')
   };
   const resetColorsButton = document.getElementById('reset-colors');
+  const pulseLimitSelect = document.getElementById('pulse-limit-select');
   const tooltip = document.getElementById('tooltip');
   const emptyState = document.getElementById('empty-state');
 
@@ -28,9 +29,11 @@
   const landColor = '#ece4d7';
   const countyBoundaryColor = 'rgba(72, 78, 72, 0.26)';
   const stateBoundaryColor = 'rgba(45, 54, 56, 0.44)';
-  const pulseLimit = 180;
+  const defaultPulseLimit = 180;
+  const allowedPulseLimits = new Set([0, 50, 100, 180, 500]);
   const modeStorageKey = 'countyPulseMode';
   const rankOrderStorageKey = 'countyPulseRankOrder';
+  const pulseLimitStorageKey = 'countyPulseLimit';
   const colorStorageKeys = {
     positive: 'countyPulsePositiveColor',
     negative: 'countyPulseNegativeColor',
@@ -41,6 +44,7 @@
     negative: 'negativeColor',
     missing: 'missingColor'
   };
+  const pulseLimitSettingKey = 'pulseLimit';
   const allowedModes = new Set(['static', 'pulse', 'build', 'scanner']);
   const allowedRankOrders = new Set(['desc', 'asc']);
   const customEncodingOrder = {
@@ -74,6 +78,7 @@
   let pulseRows = [];
   let currentMode = 'pulse';
   let currentRankOrder = 'desc';
+  let pulseLimit = defaultPulseLimit;
   let positiveColor = defaultColors.positive;
   let negativeColor = defaultColors.negative;
   let missingColor = defaultColors.missing;
@@ -85,6 +90,8 @@
   let baseDirty = true;
   let renderToken = 0;
   let resizeFrame = 0;
+  let currentSizeName = 'none';
+  let currentTooltipSource = 'Extension';
   let lastNativeTooltipTupleId = null;
   let lastNativeTooltipAt = 0;
   let nativeTooltipUnavailable = false;
@@ -103,6 +110,21 @@
     if (message) {
       emptyState.innerHTML = `<strong>${escapeHtml(message.title)}</strong><span>${escapeHtml(message.body)}</span>`;
     }
+  }
+
+  function pulseLimitStatus() {
+    if (pulseLimit === 0) return `Highlight: all ${formatNumber.format(pulseRows.length)}`;
+    return `Highlight: top ${formatNumber.format(pulseLimit)} (${formatNumber.format(pulseRows.length)} shown)`;
+  }
+
+  function updateStatusSummary() {
+    if (!encodedRows.length) return;
+    setStatus([
+      `${formatNumber.format(encodedRows.length)} marks`,
+      pulseLimitStatus(),
+      `Size: ${currentSizeName}`,
+      `Tooltips: ${currentTooltipSource}`
+    ].join(' | '));
   }
 
   function tableauAvailable() {
@@ -184,6 +206,35 @@
       return tableau.extensions.settings.get('rankBuildOrder') || 'desc';
     }
     return window.localStorage.getItem(rankOrderStorageKey) || 'desc';
+  }
+
+  function normalizePulseLimit(value) {
+    const parsed = Number(value);
+    return allowedPulseLimits.has(parsed) ? parsed : defaultPulseLimit;
+  }
+
+  function loadStoredPulseLimit() {
+    if (tableauAvailable() && tableau.extensions.settings && tableau.extensions.worksheetContent) {
+      return normalizePulseLimit(tableau.extensions.settings.get(pulseLimitSettingKey));
+    }
+    return normalizePulseLimit(window.localStorage.getItem(pulseLimitStorageKey));
+  }
+
+  async function persistPulseLimit(limit) {
+    if (tableauAvailable() && tableau.extensions.settings && tableau.extensions.worksheetContent) {
+      tableau.extensions.settings.set(pulseLimitSettingKey, String(limit));
+      await tableau.extensions.settings.saveAsync();
+      return;
+    }
+    window.localStorage.setItem(pulseLimitStorageKey, String(limit));
+  }
+
+  function setPulseLimit(limit, persist = true) {
+    pulseLimit = normalizePulseLimit(limit);
+    pulseLimitSelect.value = String(pulseLimit);
+    prepareRows();
+    updateStatusSummary();
+    if (persist) persistPulseLimit(pulseLimit);
   }
 
   function normalizeColor(value, fallback) {
@@ -599,7 +650,9 @@
       const sizeName = sizeColumn ? columnLabel(sizeColumn) : `${columnLabel(valueColumn)} (absolute)`;
       const validTooltipCount = encodedRows.filter((row) => Number.isFinite(row.tupleId)).length;
       const tooltipSource = validTooltipCount && worksheet.hoverTupleAsync ? 'Tableau' : 'Extension';
-      setStatus(`${formatNumber.format(encodedRows.length)} marks | Size: ${sizeName} | Tooltips: ${tooltipSource}`);
+      currentSizeName = sizeName;
+      currentTooltipSource = tooltipSource;
+      updateStatusSummary();
     } catch (error) {
       console.error(error);
       showEmpty(true, {
@@ -618,10 +671,10 @@
     }
 
     calculateCentroids();
-    pulseRows = encodedRows
+    const rankedRows = encodedRows
       .filter((row) => Number.isFinite(row.x) && Number.isFinite(row.y))
-      .sort((a, b) => b.magnitude - a.magnitude)
-      .slice(0, pulseLimit);
+      .sort((a, b) => b.magnitude - a.magnitude);
+    pulseRows = pulseLimit === 0 ? rankedRows : rankedRows.slice(0, pulseLimit);
     baseDirty = true;
     requestDrawFrame();
   }
@@ -946,6 +999,7 @@
     }
 
     resetColorsButton.addEventListener('click', resetColors);
+    pulseLimitSelect.addEventListener('change', () => setPulseLimit(pulseLimitSelect.value));
 
     playToggle.addEventListener('click', () => {
       if (currentMode === 'static') return;
@@ -981,6 +1035,7 @@
     await tableau.extensions.initializeAsync();
     worksheet = tableau.extensions.worksheetContent.worksheet;
     loadStoredColors();
+    setPulseLimit(loadStoredPulseLimit(), false);
     setRankOrder(loadStoredRankOrder(), false);
     setMode(loadStoredMode(), false);
     worksheet.addEventListener(tableau.TableauEventType.SummaryDataChanged, loadFromTableau);
@@ -992,6 +1047,7 @@
     await loadMap();
     resizeCanvas();
     loadStoredColors();
+    setPulseLimit(loadStoredPulseLimit(), false);
     setRankOrder(loadStoredRankOrder(), false);
     setMode(loadStoredMode(), false);
 
