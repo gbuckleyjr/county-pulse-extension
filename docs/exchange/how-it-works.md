@@ -22,6 +22,12 @@ Numeric measure that controls pulse magnitude. If this field is not supplied, Co
 
 Text field used for extension fallback tooltip labels, usually county name.
 
+## Data Diagnostics
+
+County Pulse validates worksheet rows before drawing. It reports matched counties, rows without matching county geometry, duplicate county rows, missing FIPS, missing or invalid signed values, zero-magnitude rows, and likely state-total FIPS such as `01000`.
+
+Use 5-digit county FIPS values such as `01001`. Numeric FIPS values are padded when possible, but text fields are safer because leading zeroes are preserved. Filter out state-total rows ending in `000` before mapping county data.
+
 ## Tableau Tooltip Shelf
 
 County Pulse uses Tableau's native tooltip behavior where available, so authors should put final tooltip content and formatting on the worksheet Tooltip shelf. Fields on Detail can also support richer Tableau hover context.

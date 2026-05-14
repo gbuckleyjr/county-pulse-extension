@@ -28,6 +28,10 @@ County Pulse is a Tableau **viz extension** for animated U.S. county pulse maps.
 The built-in Tableau Detail and Tooltip tiles can carry extra fields for hover context.
 County Pulse uses Tableau's native tooltip on hover, so tooltip content and formatting should be managed from the worksheet's Tooltip shelf instead of inside the extension.
 
+## Diagnostics
+
+County Pulse reports data diagnostics when worksheet rows cannot be mapped cleanly. The status shows row and matched-county counts, and a diagnostics panel appears for missing FIPS, invalid FIPS, unmatched county geometry, duplicate county rows, missing or invalid signed values, and likely state-total rows such as `01000`. Filter out state-total rows and keep FIPS as 5-digit text when possible.
+
 ## Modes
 
 - `Static`: fixed county fills and magnitude marks without motion, useful for production dashboards and screenshots.

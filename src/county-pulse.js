@@ -17,6 +17,7 @@
   };
   const resetColorsButton = document.getElementById('reset-colors');
   const pulseLimitSelect = document.getElementById('pulse-limit-select');
+  const diagnosticsPanel = document.getElementById('diagnostics-panel');
   const tooltip = document.getElementById('tooltip');
   const emptyState = document.getElementById('empty-state');
 
@@ -92,6 +93,7 @@
   let resizeFrame = 0;
   let currentSizeName = 'none';
   let currentTooltipSource = 'Extension';
+  let currentDiagnostics = createDiagnostics();
   let lastNativeTooltipTupleId = null;
   let lastNativeTooltipAt = 0;
   let nativeTooltipUnavailable = false;
@@ -103,6 +105,7 @@
 
   function setStatus(text) {
     statusEl.textContent = text;
+    statusEl.title = text;
   }
 
   function showEmpty(show, message) {
@@ -118,13 +121,115 @@
   }
 
   function updateStatusSummary() {
-    if (!encodedRows.length) return;
     setStatus([
-      `${formatNumber.format(encodedRows.length)} marks`,
+      `${formatNumber.format(currentDiagnostics.sourceRows || encodedRows.length)} rows`,
+      diagnosticStatus(currentDiagnostics),
       pulseLimitStatus(),
       `Size: ${currentSizeName}`,
       `Tooltips: ${currentTooltipSource}`
     ].join(' | '));
+  }
+
+  function createDiagnostics(sourceRows = 0) {
+    return {
+      sourceRows,
+      matchedCount: 0,
+      validRows: 0,
+      unmatchedRows: 0,
+      stateTotalRows: 0,
+      invalidFipsRows: 0,
+      missingFipsRows: 0,
+      duplicateRows: 0,
+      missingValueRows: 0,
+      invalidValueRows: 0,
+      zeroMagnitudeRows: 0,
+      invalidSizeRows: 0
+    };
+  }
+
+  function diagnosticIssueCount(diagnostics) {
+    return [
+      diagnostics.unmatchedRows,
+      diagnostics.stateTotalRows,
+      diagnostics.invalidFipsRows,
+      diagnostics.missingFipsRows,
+      diagnostics.duplicateRows,
+      diagnostics.missingValueRows,
+      diagnostics.invalidValueRows,
+      diagnostics.zeroMagnitudeRows,
+      diagnostics.invalidSizeRows
+    ].reduce((total, count) => total + count, 0);
+  }
+
+  function diagnosticStatus(diagnostics) {
+    const issues = diagnosticIssueCount(diagnostics);
+    const matched = formatNumber.format(diagnostics.matchedCount);
+    return issues
+      ? `${matched} counties matched, ${formatNumber.format(issues)} issues`
+      : `${matched} counties matched`;
+  }
+
+  function setDiagnostics(diagnostics) {
+    currentDiagnostics = diagnostics || createDiagnostics();
+    const shouldShow = currentDiagnostics.sourceRows > 0 && (
+      diagnosticIssueCount(currentDiagnostics) > 0 ||
+      currentDiagnostics.matchedCount === 0
+    );
+
+    diagnosticsPanel.hidden = !shouldShow;
+    if (!shouldShow) {
+      diagnosticsPanel.innerHTML = '';
+      return;
+    }
+
+    const rows = [
+      ['Matched counties', currentDiagnostics.matchedCount],
+      ['Unmatched rows', currentDiagnostics.unmatchedRows],
+      ['State-total rows', currentDiagnostics.stateTotalRows],
+      ['Missing FIPS', currentDiagnostics.missingFipsRows],
+      ['Invalid FIPS', currentDiagnostics.invalidFipsRows],
+      ['Missing values', currentDiagnostics.missingValueRows],
+      ['Invalid values', currentDiagnostics.invalidValueRows],
+      ['Duplicate counties', currentDiagnostics.duplicateRows],
+      ['Zero magnitude', currentDiagnostics.zeroMagnitudeRows]
+    ].filter((row, index) => index === 0 || row[1] > 0);
+
+    if (currentDiagnostics.invalidSizeRows > 0) {
+      rows.push(['Bad Pulse Size', currentDiagnostics.invalidSizeRows]);
+    }
+
+    const counts = rows
+      .map(([label, value]) => `<dt>${escapeHtml(label)}</dt><dd>${formatNumber.format(value)}</dd>`)
+      .join('');
+    const advice = diagnosticAdvice(currentDiagnostics);
+    diagnosticsPanel.innerHTML = [
+      '<strong>Data diagnostics</strong>',
+      `<dl>${counts}</dl>`,
+      advice ? `<span>${escapeHtml(advice)}</span>` : ''
+    ].join('');
+  }
+
+  function diagnosticAdvice(diagnostics) {
+    if (diagnostics.stateTotalRows) return 'Filter out state-total FIPS such as 01000 before mapping counties.';
+    if (diagnostics.unmatchedRows || diagnostics.invalidFipsRows) return 'Use 5-digit county FIPS like 01001; keep FIPS as text when possible.';
+    if (diagnostics.missingFipsRows) return 'Populate County FIPS for each county mark.';
+    if (diagnostics.missingValueRows || diagnostics.invalidValueRows) return 'Signed Value must be numeric for every county mark.';
+    if (diagnostics.duplicateRows) return 'Aggregate to one mark per county; County Pulse draws the largest magnitude row.';
+    if (diagnostics.zeroMagnitudeRows) return 'Zero-size rows are skipped because no pulse can be drawn.';
+    if (diagnostics.invalidSizeRows) return 'Bad Pulse Size rows fall back to absolute Signed Value.';
+    return '';
+  }
+
+  function emptyDiagnosticBody(diagnostics) {
+    if (!diagnostics.sourceRows) {
+      return 'Worksheet returned no summary rows. Check filters and Marks card fields.';
+    }
+
+    const advice = diagnosticAdvice(diagnostics) || 'Check that County FIPS values are populated and Signed Value is numeric.';
+    return [
+      `${formatNumber.format(diagnostics.matchedCount)} matched counties from ${formatNumber.format(diagnostics.sourceRows)} worksheet rows.`,
+      advice
+    ].join(' ');
   }
 
   function tableauAvailable() {
@@ -299,15 +404,46 @@
     persistColors();
   }
 
-  function parseNumber(value) {
-    if (value === null || value === undefined || value === '') return 0;
-    if (typeof value === 'number') return Number.isFinite(value) ? value : 0;
-    const parsed = Number(String(value).replace(/,/g, '').trim());
-    return Number.isFinite(parsed) ? parsed : 0;
+  function parseMeasure(value) {
+    if (value === null || value === undefined || value === '') {
+      return { value: null, missing: true, valid: false };
+    }
+    if (typeof value === 'number') {
+      return Number.isFinite(value)
+        ? { value, missing: false, valid: true }
+        : { value: null, missing: false, valid: false };
+    }
+    const text = String(value).replace(/,/g, '').trim();
+    if (!text) return { value: null, missing: true, valid: false };
+    const parsed = Number(text);
+    return Number.isFinite(parsed)
+      ? { value: parsed, missing: false, valid: true }
+      : { value: null, missing: false, valid: false };
+  }
+
+  function fipsDigits(value) {
+    if (value === null || value === undefined || value === '') return '';
+    if (typeof value === 'number') return Number.isFinite(value) ? String(Math.trunc(Math.abs(value))) : '';
+    const raw = String(value).trim();
+    if (!raw) return '';
+    const numeric = raw.replace(/,/g, '');
+    if (/^\d+(\.0+)?$/.test(numeric)) return String(Math.trunc(Number(numeric)));
+    return raw.replace(/\D/g, '');
   }
 
   function normalizeFips(value) {
-    return String(value || '').replace(/\D/g, '').padStart(5, '0').slice(-5);
+    const digits = fipsDigits(value);
+    return digits ? digits.padStart(5, '0').slice(-5) : '';
+  }
+
+  function analyzeFips(value, validFipsSet) {
+    const digits = fipsDigits(value);
+    if (!digits) return { fips: '', valid: false, reason: 'missing' };
+    const fips = digits.padStart(5, '0').slice(-5);
+    if (digits.length > 5 || fips === '00000') return { fips, valid: false, reason: 'invalid' };
+    if (fips.slice(2) === '000') return { fips, valid: false, reason: 'state-total' };
+    if (validFipsSet && !validFipsSet.has(fips)) return { fips, valid: false, reason: 'unmatched' };
+    return { fips, valid: true, reason: '' };
   }
 
   function normalizeKey(value) {
@@ -591,9 +727,10 @@
         encodedRows = [];
         pulseRows = [];
         dataByFips.clear();
+        setDiagnostics(null);
         baseDirty = true;
         showEmpty(true, {
-          title: 'Map fields on the Marks card.',
+          title: 'Missing required Marks card fields.',
           body: `County FIPS and Signed Value are required. ${diagnosticText(fields, columns)}`
         });
         setStatus('Waiting for fields');
@@ -604,6 +741,9 @@
       const valueIndex = columnDataIndex(columns, valueColumn);
       const sizeIndex = columnDataIndex(columns, sizeColumn);
       const labelIndex = columnDataIndex(columns, labelColumn);
+      const validFipsSet = new Set(countyFeatures.map((feature) => normalizeFips(feature.id)));
+      const diagnostics = createDiagnostics(rows.length);
+      const seenFips = new Set();
       const detailIndexes = detailColumns.map((column) => ({
         label: columnLabel(column),
         index: columnDataIndex(columns, column)
@@ -616,10 +756,37 @@
           const tupleId = Number.isFinite(markTupleId) && markTupleId > 0
             ? markTupleId
             : index + 1;
-          const fips = normalizeFips(cellNative(cells, fipsIndex));
-          const value = parseNumber(cellNative(cells, valueIndex));
-          const explicitSize = sizeIndex >= 0 ? parseNumber(cellNative(cells, sizeIndex)) : null;
-          const magnitude = Math.abs(explicitSize === null ? value : explicitSize);
+          const fipsInfo = analyzeFips(cellNative(cells, fipsIndex), validFipsSet);
+          const valueInfo = parseMeasure(cellNative(cells, valueIndex));
+          const sizeInfo = sizeIndex >= 0 ? parseMeasure(cellNative(cells, sizeIndex)) : null;
+
+          if (fipsInfo.reason === 'missing') diagnostics.missingFipsRows += 1;
+          if (fipsInfo.reason === 'invalid') diagnostics.invalidFipsRows += 1;
+          if (fipsInfo.reason === 'state-total') diagnostics.stateTotalRows += 1;
+          if (fipsInfo.reason === 'unmatched') diagnostics.unmatchedRows += 1;
+          if (valueInfo.missing) diagnostics.missingValueRows += 1;
+          if (!valueInfo.missing && !valueInfo.valid) diagnostics.invalidValueRows += 1;
+
+          if (!fipsInfo.valid || !valueInfo.valid) return null;
+
+          let magnitude = Math.abs(valueInfo.value);
+          if (sizeInfo) {
+            if (sizeInfo.valid) {
+              magnitude = Math.abs(sizeInfo.value);
+            } else if (!sizeInfo.missing) {
+              diagnostics.invalidSizeRows += 1;
+            }
+          }
+          if (magnitude <= 0) {
+            diagnostics.zeroMagnitudeRows += 1;
+            return null;
+          }
+
+          if (seenFips.has(fipsInfo.fips)) diagnostics.duplicateRows += 1;
+          seenFips.add(fipsInfo.fips);
+
+          const fips = fipsInfo.fips;
+          const value = valueInfo.value;
           const label = labelIndex >= 0 ? String(cellFormatted(cells, labelIndex) || fips) : fips;
           const details = detailIndexes
             .filter((item) => Number.isInteger(item.index))
@@ -640,12 +807,15 @@
             sizeLabel: sizeColumn ? columnLabel(sizeColumn) : columnLabel(valueColumn)
           };
         })
-        .filter((row) => row.fips && Number.isFinite(row.value) && row.magnitude > 0);
+        .filter(Boolean);
 
       prepareRows();
+      diagnostics.matchedCount = dataByFips.size;
+      diagnostics.validRows = encodedRows.length;
+      setDiagnostics(diagnostics);
       showEmpty(!encodedRows.length, {
         title: 'No county marks to draw.',
-        body: 'Check that County FIPS values are populated and Signed Value is numeric.'
+        body: emptyDiagnosticBody(diagnostics)
       });
       const sizeName = sizeColumn ? columnLabel(sizeColumn) : `${columnLabel(valueColumn)} (absolute)`;
       const validTooltipCount = encodedRows.filter((row) => Number.isFinite(row.tupleId)).length;
@@ -655,6 +825,7 @@
       updateStatusSummary();
     } catch (error) {
       console.error(error);
+      setDiagnostics(null);
       showEmpty(true, {
         title: 'County Pulse could not read the worksheet.',
         body: error && error.message ? error.message : 'Check the Marks card encodings.'

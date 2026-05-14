@@ -285,6 +285,51 @@ input:disabled {
   gap: 7px;
 }
 
+.diagnostics-panel {
+  position: absolute;
+  left: 10px;
+  bottom: 10px;
+  display: grid;
+  width: min(320px, calc(100% - 120px));
+  gap: 7px;
+  border: 1px solid rgba(216, 209, 196, 0.92);
+  border-radius: 8px;
+  background: rgba(255, 253, 250, 0.92);
+  color: var(--muted);
+  padding: 10px 12px;
+  font-size: 12px;
+  line-height: 1.35;
+  pointer-events: none;
+}
+
+.diagnostics-panel strong {
+  color: var(--ink);
+  font-size: 13px;
+}
+
+.diagnostics-panel dl {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 4px 12px;
+  margin: 0;
+}
+
+.diagnostics-panel dt,
+.diagnostics-panel dd {
+  margin: 0;
+}
+
+.diagnostics-panel dt {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.diagnostics-panel dd {
+  color: var(--ink);
+  font-weight: 800;
+}
+
 .swatch {
   width: 18px;
   height: 12px;
@@ -409,5 +454,10 @@ input:disabled {
   .legend {
     left: 8px;
     right: auto;
+  }
+
+  .diagnostics-panel {
+    bottom: 82px;
+    width: calc(100% - 16px);
   }
 }
