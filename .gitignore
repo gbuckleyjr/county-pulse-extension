@@ -44,3 +44,4 @@ US County PopMigration.csv
 *.png
 !assets/icon.png
 !docs/exchange/*.png
+!demos/data/*.csv
