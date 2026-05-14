@@ -5,7 +5,7 @@ County Pulse is registered as a Tableau worksheet/viz extension through `CountyP
 ## Current Metadata
 
 - Extension ID: `com.gbuckleyjr.countypulse`
-- Extension version: `0.2.1`
+- Extension version: `0.3.0`
 - Listing name: `County Pulse`
 - Author: `Greg Buckley`
 - Organization: `Independent`

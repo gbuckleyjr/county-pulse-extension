@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest manifest-version="0.1" xmlns="http://www.tableau.com/xml/extension_manifest">
-  <worksheet-extension id="com.gbuckleyjr.countypulse" extension-version="0.2.1">
+  <worksheet-extension id="com.gbuckleyjr.countypulse" extension-version="0.3.0">
     <default-locale>en_US</default-locale>
     <name>County Pulse</name>
     <description>Animated U.S. county pulse map driven by Tableau Marks card encodings.</description>
