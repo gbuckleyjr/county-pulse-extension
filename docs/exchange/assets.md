@@ -15,6 +15,10 @@ This folder contains draft Tableau Exchange listing assets for County Pulse.
 
 Reusable demo inputs live in [`../../demos/`](../../demos/). The demo package keeps the original migration workbook as one scenario and adds two public county-level CSV scenarios for unemployment gap and population-density gap.
 
+## Validation
+
+Runtime validation status lives in [`../validation.md`](../validation.md). Final screenshots should be recaptured from Tableau after the Desktop/Public checks pass.
+
 ## Screenshot Status
 
 The screenshots are draft Exchange assets made from public, non-sensitive sample values. Replace them with final Tableau Desktop or Tableau Public screenshots during the validation pass in issue #9.
